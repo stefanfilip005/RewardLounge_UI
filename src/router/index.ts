@@ -18,6 +18,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("../views/Ranking.vue")
   },
   {
+    path: "/rewards",
+    name: "rewards",
+    component: () => import("../views/Rewards.vue")
+  },
+  {
     path: "/demandtype",
     name: "demandtype",
     // route level code-splitting

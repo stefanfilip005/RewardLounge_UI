@@ -1,6 +1,7 @@
 <template>
   <nav class="mainnav" v-if="LOGGED_IN">
     <router-link to="/">Übersicht</router-link> | 
+    <!-- <router-link to="/rewards">Belohnungen</router-link> | -->
     <span v-if="showEmployeeLink"><router-link to="/employee">Mitarbeiter</router-link> | </span>
     <router-link to="/demandtype">Klassifizierung</router-link> |
     
@@ -77,6 +78,7 @@ export default defineComponent({
           this.setJwt(localToken);
           this.LOGGED_IN = true;
           this.READING_TOKEN = false;
+          localStorage.setItem('remoteId', response.data.data.remoteId);
           this.setUser(response.data.data);
         }).catch(error => {
           this.READING_TOKEN = false;

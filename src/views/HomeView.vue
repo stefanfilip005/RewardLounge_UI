@@ -11,12 +11,27 @@
                   <h3 class="card-title text-left">
                     Hallo {{  user.firstname }} {{ user.lastname }}
                   </h3>
+
+                  <div class="text-danger mt-2 mb-4">
+                    <strong>
+                      Willkommen, liebe Kolleginnen und Kollegen!
+                      <br/>
+                      Bitte beachten Sie, dass sich unsere Webseite noch in der Testphase befindet. Wir sind aktuell dabei, die angemessene Punkteverteilung für unsere Dienste zu ermitteln.
+                      <br/>
+                      Beachten Sie bitte auch, dass sich die Punkteberechnung während dieser Testphase noch ändern kann.
+                    </strong>
+                  </div>
+
+
+
                   <strong>Deine Punkte: {{ Math.floor(user.points) }}</strong><br/>
                   Du bist in der Rangliste auf Platz {{ ranking.place }}<br/>
                   <small class="text-muted">Sammle noch <strong>{{ (ranking.pointsForNext == 1) ? 'einen Punkt' : ranking.pointsForNext + ' Punkte' }}</strong> um einen Platz aufzusteigen.</small><br/>
                 </div>
               </div>
             </div>
+
+            <!--
             <div class="col-12 mb-3">
               <div class="card">
                 <div class="card-body text-left">
@@ -38,10 +53,30 @@
                 </div>
               </div>
             </div>
+            -->
+
+            
+
             <div class="col">
               <div class="card">
                 <div class="card-body">
                   <h3 class="card-title text-left">Deine Dienste</h3>
+
+                  <div class="mb-3">
+                    <div @click="prevYear" class="d-inline-block">
+                      <i class="fa-solid fa-angle-left"
+                        :class="{ 'text-muted': year === lowestYear }"
+                        v-if="year > lowestYear">
+                      </i>
+                    </div>
+                    &nbsp; {{ year }} &nbsp; 
+                    <i class="fa-solid fa-angle-right"
+                      :class="{ 'text-muted': year === highestYear }"
+                      v-if="year < highestYear"
+                      @click="nextYear()">
+                    </i>
+                  </div>
+
                   <table class="table table-hover table-sm mt-2 mb-4">
                     <thead class="thead-dark">
                       <tr>
@@ -53,7 +88,7 @@
                         <th scope="col">Punkte</th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody v-if="shifts.length > 0">
                       <tr v-for="(row, index) in shifts" :key="index">
                         <td>{{ row.start.substring(0,10) }}</td>
                         <td>{{ row.start.substring(11,16) }}</td>
@@ -84,6 +119,8 @@
                     </ul>
                   </nav>
 
+                  {{ shifts }}
+
                 </div>
               </div>
             </div>
@@ -110,6 +147,9 @@ export default defineComponent({
   data() {
     return {
       shifts: [],
+      year: 2024,
+      lowestYear: 2023,
+      highestYear:2024,
       rankingDistribution: [] as any[],
       page: 1,
       meta: {
@@ -157,6 +197,16 @@ export default defineComponent({
       await this.getShifts(this.page);
     },
 
+    async prevYear() {
+      console.log("Previous", this.year, this.lowestYear);
+      this.year = Math.max(this.lowestYear, this.year - 1);
+      await this.getShifts(this.page);
+    },
+    async nextYear(){
+      this.year = Math.min(this.highestYear,this.year+1);
+      await this.getShifts(this.page);
+    },
+
     async getRanking(page:number) {
       await axios.get<any>('../api/self/ranking?page='+page, { headers: { Accepts: "application:json", Authorization: "Bearer " + this.jwt } }).then((response) => {
         this.ranking = response.data.data;
@@ -189,7 +239,13 @@ export default defineComponent({
     },
 
     async getShifts(page:number) {
-      await axios.get<any>('../api/self/shifts?page='+page, { headers: { Accepts: "application:json", Authorization: "Bearer " + this.jwt } }).then((response) => {
+      this.shifts =  [];
+      this.page = 1;
+      this.meta = {
+        current_page: 1,
+        last_page: 1,
+      };
+      await axios.get<any>('../api/self/shifts?year='+this.year+'&page='+page, { headers: { Accepts: "application:json", Authorization: "Bearer " + this.jwt } }).then((response) => {
         this.shifts = response.data.data;
         this.meta = response.data.meta;
       }).catch((error) => {
