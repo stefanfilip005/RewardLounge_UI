@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import axios from 'axios';
-import { ref, computed, onMounted, ComponentPublicInstance   } from 'vue'
+import { ref, onMounted, ComponentPublicInstance   } from 'vue'
 import { useStore } from 'vuex'
 
 import Navbar from "./components/Navbar.vue";

@@ -16,6 +16,9 @@ interface Employee {
     misc: number;
     countLocale: string,
     hours: string,
+    isAdministrator: boolean,
+    isModerator: boolean,
+    isDeveloper: boolean,
     pointsDisplay: string,
 }
 
@@ -38,6 +41,9 @@ const showCategoryLocation = ref('combined');
 
 
 const getEmployees = async () => {
+  employees.value = {};
+  employeesHollabrunn.value = {};
+  employeesHaugsdorf.value = {};
   try {
     const response = await axios.get('../api/employees', {
       headers: {
@@ -52,6 +58,61 @@ const getEmployees = async () => {
     console.error(error);
   }
 };
+
+const makeAdmin = async (employeeId: number) => {
+  employees.value = {};
+  employeesHollabrunn.value = {};
+  employeesHaugsdorf.value = {};
+  try {
+    await axios.post(`../api/employees/make-admin/${employeeId}`, {}, {
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${jwt.value}`
+      }
+    });
+  await getEmployees();
+  await getShifts();
+  } catch (error) {
+    console.error(error);
+  }
+};
+const makeModerator = async (employeeId: number) => {
+  employees.value = {};
+  employeesHollabrunn.value = {};
+  employeesHaugsdorf.value = {};
+  try {
+    await axios.post(`../api/employees/make-moderator/${employeeId}`, {}, {
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${jwt.value}`
+      }
+    });
+  await getEmployees();
+  await getShifts();
+  } catch (error) {
+    console.error(error);
+  }
+};
+const removeAllRoles = async (employeeId: number) => {  
+  if (!confirm('Soll die Rolle wirklich entfernt werden?')) {
+    return; // Stop if the user cancels
+  }
+  try {
+    await axios.post(`/api/employees/${employeeId}/remove-roles`, {}, {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${jwt.value}`
+      }
+    });
+    await getEmployees();
+    await getShifts();
+  } catch (error) {
+    console.error('Error removing roles from employee:', error);
+  }
+};
+
+
+
 
 const getShifts = async () => {
   employees.value = {};
@@ -71,7 +132,7 @@ const getShifts = async () => {
       const endTime = new Date(currentItem.end).getTime();
       
       if (employees.value[currentItem.employeeId] === undefined || employees.value[currentItem.employeeId] === null) {
-        employees.value[currentItem.employeeId] = { 'id' : currentItem.employeeId, 'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0, 'count' : 0, 'minutes' : 0, 'points' : 0 };
+        employees.value[currentItem.employeeId] = { 'id' : currentItem.employeeId, 'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0, 'count' : 0, 'minutes' : 0, 'points' : 0};
       }
       employees.value[currentItem.employeeId]['count']++;
       employees.value[currentItem.employeeId]['minutes'] += (endTime - startTime) / (1000 * 60);
@@ -316,11 +377,24 @@ const convertMinutesToHours = (minutes) => {
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(employee, index) in sortedEmployees" :key="employee.id" :class="{'bg-gray-200': index % 2 === 0, 'hover:bg-blue-300': true}">
+                <tr v-for="(employee, index) in sortedEmployees" :key="employee.id" :class="{'bg-gray-200': index % 2 === 0, 'hover:bg-blue-300': !employeeMap[employee.id]?.isDeveloper && !employeeMap[employee.id]?.isAdministrator && !employeeMap[employee.id]?.isModerator, 'hover:bg-red-300': employeeMap[employee.id]?.isDeveloper || employeeMap[employee.id]?.isAdministrator || employeeMap[employee.id]?.isModerator}">
                   <td class="px-2 py-1">{{ index + 1 }}</td>
-                  <td class="px-2 py-1 border-r border-r-gray-600">
-                    {{ employeeMap[employee.id]?.firstname }} {{ employeeMap[employee.id]?.lastname }} &nbsp;<span class="text-xs text-gray-500">{{ employee.id}} </span>
+                  <td class="px-2 py-1 border-r border-r-gray-600 flex justify-between items-center">
+                    <div>
+                      <i v-if="employeeMap[employee.id]?.isDeveloper" class="fas fa-user-police-tie text-xs text-gray-600"></i>
+                      <i v-if="employeeMap[employee.id]?.isAdministrator" class="fas fa-user-crown text-xs text-red-600"></i>
+                      <i v-if="employeeMap[employee.id]?.isModerator" class="fas fa-user-shield text-xs text-blue-600"></i>
+                      {{ employeeMap[employee.id]?.firstname }} {{ employeeMap[employee.id]?.lastname }} &nbsp;<span class="text-xs text-gray-500">{{ employee.id }}</span>
+                    </div>
+                  
+                    <div class="flex items-center gap-2">
+                      <button v-if="!employeeMap[employee.id]?.isDeveloper && (employeeMap[employee.id]?.isModerator)" @click="makeAdmin(employee.id)" class="text-xs bg-red-200 text-white px-2 py-1 rounded hover:bg-red-600">Administrator ernennen</button>
+                      <button v-if="!employeeMap[employee.id]?.isDeveloper && (!employeeMap[employee.id]?.isModerator && !employeeMap[employee.id]?.isAdministrator)" @click="makeModerator(employee.id)" class="text-xs bg-blue-200 text-white px-2 py-1 rounded hover:bg-blue-600">Moderator ernennen</button>
+                      <button v-if="!employeeMap[employee.id]?.isDeveloper && employeeMap[employee.id]?.isAdministrator" @click="removeAllRoles(employee.id)" class="text-xs bg-red-400 text-white px-2 py-1 rounded hover:bg-red-600">Rechte entfernen</button>
+                      <button v-if="employeeMap[employee.id]?.isDeveloper" class="text-xs bg-red-400 text-white px-2 py-1 rounded cursor-default">Entwickler</button>
+                    </div>
                   </td>
+                  
 
                   <td class="px-2 py-1 text-center text-gray-500">{{ employee.nef !== 0 ? employee.nef : '' }}</td>
                   <td class="px-2 py-1 text-center text-gray-500">{{ employee.rtw !== 0 ? employee.rtw : '' }}</td>

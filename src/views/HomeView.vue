@@ -364,7 +364,7 @@ async function downloadFile(monthIndex) {
       <div class="w-full max-w-2xl bg-white rounded-lg shadow-md overflow-hidden md:max-w-3xl lg:max-w-5xl xl:max-w-5xl mx-2">
         <div class="px-6 py-4">
           <div class="flex mb-2 border-b border-b-gray-400 pb-1 justify-between">
-            <div class="font-bold text-base md:text-xl">Infoblätter herunterladen</div>    
+            <div class="font-bold text-base md:text-xl">Infoblätter</div>    
             <div v-if="!loading" class="flex items-center font-bold text-base md:text-xl text-gray-500">
               <div 
                 class="cursor-pointer"

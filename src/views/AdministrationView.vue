@@ -1,7 +1,13 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, ref, reactive, computed } from 'vue';
 import { useStore } from 'vuex';
 import axios from 'axios';
+
+
+const newFaq = reactive({
+  question: '',
+  answer: ''
+});
 
 import OrdersComponent from '../components/OrdersComponent.vue';
 
@@ -102,12 +108,13 @@ const uploadFile = async (monthIndex) => {
 const isAdministrator = computed(() => {
     const user = store.state.user; // Directly accessing user from the state
     if (!user) return false; // Check if user is null
-    return user.isAdministrator === 1 || user.isDeveloper === 1;
+    return user.isAdministrator || user.isDeveloper;
 });
 
 
 const showGreeting = ref(false);
 const showFAQ = ref(false);
+//const showUserSimulation = ref(false);
 const showAccessLog = ref(false);
 const showLoginLog = ref(false);
 const showShifts = ref(false);
@@ -282,6 +289,7 @@ onMounted(() => {
   getGreeting();
   getRewards();
   getOrders();
+  getFAQs();
   getInfoblaetter();
 });
 
@@ -414,9 +422,103 @@ async function downloadFile(monthIndex) {
 };
 
 
+
+const faqs = ref<any[]>([]);
+
+const getFAQs = async () => {
+  faqs.value = [];
+  try {
+    const response = await axios.get('../api/faqs', {
+      headers: {
+        Accepts: "application:json",
+        Authorization: `Bearer ${jwt.value}`
+      }
+    });
+    faqs.value = response.data.data.map(faq => ({
+      ...faq,
+      isOpen: false, // Used for toggling edit fields
+    }));
+  } catch (error) {
+    console.error('Failed to fetch FAQs:', error);
+  }
+};
+
+const toggleFAQ = (faq) => {
+  faq.isOpen = !faq.isOpen;
+};
+const addNewFAQ = async () => {
+  if (!newFaq.question.trim() || !newFaq.answer.trim()) {
+    alert('Please fill in both the question and answer.');
+    return;
+  }
+
+  try {
+    await axios.post('../api/faqs', newFaq, {
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${jwt.value}`
+      }
+    });
+
+    // Add the newly created FAQ to the local list and clear the form
+    newFaq.question = '';
+    newFaq.answer = '';
+    getFAQs();
+  } catch (error) {
+    console.error('Failed to add new FAQ:', error);
+  }
+};
+const saveFAQ = async (faq) => {
+  try {
+    // Determine the URL based on whether we're updating or creating a new FAQ
+    const url = faq.id ? `../api/faqs/${faq.id}` : '../api/faqs';
+
+    // Send the request with the FAQ data
+    await axios.post(url, {
+      question: faq.question,
+      answer: faq.answer
+    }, {
+      headers: {
+        'Accept': 'application/json', // Ensure the header is correctly defined
+        'Authorization': `Bearer ${jwt.value}`
+      }
+    });
+
+    getFAQs();
+  } catch (error) {
+    console.error('Failed to save FAQ:', error);
+  }
+};
+const deleteFAQ = async (faqId) => {
+  // Confirm with the user
+  if (!confirm('Soll dieser Eintrag wirklich gelöscht werden?')) {
+    return; // Stop if the user cancels
+  }
+
+  try {
+    await axios.delete(`../api/faqs/${faqId}`, {
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${jwt.value}`
+      }
+    });
+    // Remove the FAQ from the local list
+    faqs.value = faqs.value.filter(f => f.id !== faqId);
+  } catch (error) {
+    console.error('Failed to delete FAQ:', error);
+  }
+};
+
+
+
+
 const toggleShowFAQ = async () => {
   showFAQ.value = !showFAQ.value;
 };
+/*
+const toggleShowUserSimulation = async () => {
+  showUserSimulation.value = !showUserSimulation.value;
+};*/
 
 const toggleShowGreeting = async () => {
   showGreeting.value = !showGreeting.value;
@@ -667,6 +769,31 @@ const getLocationName = (locationId) => {
         </div>
       </div>
 
+
+      <!--
+      <div class="w-full max-w-2xl bg-white rounded-lg shadow-md overflow-hidden md:max-w-3xl lg:max-w-5xl xl:max-w-5xl mx-2 mb-6" v-if="isAdministrator">
+        <div class="px-6 py-4">
+          <div class="font-bold text-base md:text-xl mb-4 border-b border-b-gray-400 pb-1 flex justify-between items-center">
+            Benutzer simulieren
+            <div v-if="showUserSimulation" @click="toggleShowUserSimulation()" class="cursor-pointer pr-2">
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div v-if="!showUserSimulation" @click="toggleShowUserSimulation()" class="cursor-pointer pr-2">
+                <i class="fas fa-chevron-up"></i>
+            </div>
+          </div>
+
+          <div v-if="showUserSimulation">
+            <div class="overflow-x-auto">
+              ToDo
+            </div>
+          </div>
+        </div>
+      </div>
+      -->
+
+
+
       <div class="w-full max-w-2xl bg-white rounded-lg shadow-md overflow-hidden md:max-w-3xl lg:max-w-5xl xl:max-w-5xl mx-2 mb-6" v-if="isAdministrator">
         <div class="px-6 py-4">
           <div class="font-bold text-base md:text-xl mb-4 border-b border-b-gray-400 pb-1 flex justify-between items-center">
@@ -681,19 +808,31 @@ const getLocationName = (locationId) => {
 
           <div v-if="showFAQ">
             <div class="overflow-x-auto">
-              <p class="text-center font-semibold">
-                Welcher Text soll dem Benutzer auf der Startseite angezeigt werden?
-              </p>
-              <p>
-                <textarea class="w-full h-32 border border-gray-400 rounded-md p-2 mt-2" v-model="greeting"></textarea>
-              </p>
-              <p>
-                <button @click="updateGreeting" class="bg-red-800 text-white font-semibold rounded-md px-4 py-2 mt-2 flex items-center text-xs md:text-sm">
-                  Speichern
-                </button>
-              </p>
+
+              <div class="mb-4 p-4 border rounded shadow bg-gray-300">
+                <h3 class="mb-2">Eine neue Frage und Antwort eintragen</h3>
+                <div>
+                  <input type="text" v-model="newFaq.question" placeholder="Neue Frage eingeben" class="w-full p-2 border rounded mb-2 border-red-700" />
+                  <textarea v-model="newFaq.answer" placeholder="Neue Antwort eingeben" class="w-full p-2 border rounded mb-2 border-red-700" rows="3"></textarea>
+                  <button @click="addNewFAQ" class="bg-red-600 text-white p-2 rounded">Neue Frage und Antwort speichern</button>
+                </div>
+              </div>
+
+              <div v-for="faq in faqs" :key="faq.id" class="mb-4 p-2 border rounded shadow bg-gray-300">
+                <div class="flex justify-between items-center cursor-pointer" @click="toggleFAQ(faq)">
+                  <span class="font-semibold">{{ faq.question }}</span>
+                  <i :class="`fas ${faq.isOpen ? 'fa-chevron-up' : 'fa-chevron-down'}`"></i>
+                </div>
+                <div v-if="faq.isOpen" class="mt-4 text-center">
+                  <input type="text" v-model="faq.question" class="w-full p-1 border rounded border-red-700" />
+                  <textarea v-model="faq.answer" class="w-full p-1 border rounded mt-2 border-red-700" rows="3"></textarea>
+                  <button @click.stop="saveFAQ(faq)" class="bg-red-600 text-white p-2 rounded mt-2 font-bold">FAQ Speichern</button>
+                  <button @click.stop="deleteFAQ(faq.id)" class="bg-gray-500 text-white p-2 rounded mt-2 ml-2">FAQ Löschen</button>
+                </div>
+              </div>
             </div>
           </div>
+          
         </div>
       </div>
 

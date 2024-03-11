@@ -14,7 +14,7 @@ const cartCount = computed(() => store.state.cartCount);
 const showEmployeeLink = computed(() => {
     const user = store.state.user; // Directly accessing user from the state
     if (!user) return false; // Check if user is null
-    return user.isAdministrator === 1 || user.isModerator === 1 || user.isDeveloper === 1;
+    return user.isAdministrator || user.isModerator || user.isDeveloper;
 });
 
 function logout() {

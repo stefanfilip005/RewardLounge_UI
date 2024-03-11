@@ -7,9 +7,11 @@ const store = useStore();
 const jwt = computed(() => store.state.jwt);
 
 const rewards = ref<any[]>([]);
+const loadingRewards = ref(true);
 
 
 const getRewards = async () => {
+  loadingRewards.value = true;
   try {
     const response = await axios.get('../api/rewards', {
       headers: {
@@ -19,7 +21,9 @@ const getRewards = async () => {
     });
     const sortedRewards = response.data.data.sort((a, b) => a.points - b.points);
     rewards.value = sortedRewards;
+    loadingRewards.value = false;
   } catch (error) {
+    loadingRewards.value = false;
     console.error(error);
   }
 };
@@ -59,30 +63,13 @@ onMounted(() => {
 
 <template>
   <div class="bg-gray-200 pt-4">
-
-    <div class="flex justify-center mb-8 mt-2">
-      <div class="w-full max-w-2xlrounded-lg shadow-md overflow-hidden md:max-w-3xl lg:max-w-5xl xl:max-w-5xl mx-2 bg-red-300 border border-red-600">
-        <div class="px-4 py-2 text-sm text-center font-bold text-gray-800">
-          Diese Seite ist derzeit nur für Administratoren und Moderatoren sichtbar.
-        </div>
-      </div>
-    </div>
-
     
     <div class="flex justify-center mb-10">
       <div class="w-full max-w-2xl bg-white rounded-lg shadow-md overflow-hidden md:max-w-3xl lg:max-w-5xl xl:max-w-5xl mx-2">
         <div class="px-6 py-4">
-          <div class="flex mb-2 border-b border-b-gray-400 pb-1">
-            <div class="font-bold text-base md:text-xl">Produkte</div>
-          </div>
-
-          <p class="text-red-700 text-lg md:text-xl font-bold mt-4 mb-12">
-            Bitte beachten Sie, dass sich unsere Webseite noch in der Testphase befindet.<br/>
-            Die angezeigten Produkte, Preise und Punkte sind für interne Testzwecke frei erfunden.
-          </p>
 
           <!-- Products Container -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-16">
+          <div v-if="!loadingRewards" class="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-16">
 
             <div v-for="product in rewards" :key="product.id" class="mb-4">
               <!-- Product Details -->
@@ -111,6 +98,14 @@ onMounted(() => {
                 </div>
               </div>
             </div>
+
+
+          </div>
+          <div v-if="!loadingRewards && rewards.length === 0" class="text-center font-bold">
+            Es wurden noch keine Produkte erstellt
+          </div>
+          <div v-if="loadingRewards" class="text-center font-bold">
+            <i class="fas fa-spinner fa-spin text-gray-500 text-lg mr-2"></i> Produkte werden geladen
           </div>
         
 

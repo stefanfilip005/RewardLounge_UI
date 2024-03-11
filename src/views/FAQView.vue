@@ -1,3 +1,44 @@
+<script setup lang="ts">
+import { onMounted, ref, computed } from 'vue';
+import { useStore } from 'vuex';
+import axios from 'axios';
+
+const store = useStore();
+
+const jwt = computed(() => store.state.jwt);
+
+const faqs = ref<any[]>([]);
+
+const getFAQs = async () => {
+  faqs.value = [];
+  try {
+    const response = await axios.get('../api/faqs', {
+      headers: {
+        Accepts: "application:json",
+        Authorization: `Bearer ${jwt.value}`
+      }
+    });
+    faqs.value = response.data.data.map(faq => ({
+      ...faq,
+      isOpen: false
+    })).sort((a, b) => a.sort_order - b.sort_order);
+  } catch (error) {
+    console.error(error);
+  }
+};
+const toggleFAQ = (faqId) => {
+  const faq = faqs.value.find(f => f.id === faqId);
+  if (faq) {
+    faq.isOpen = !faq.isOpen;
+  }
+};
+
+onMounted(() => {
+  getFAQs();
+});
+</script>
+
+
 <template>
   <div class="bg-gray-200 pt-4">
     
@@ -11,25 +52,16 @@
             <div class="font-bold text-base md:text-xl">Häufig gestellte Fragen</div>
           </div>
 
-          <div class="max-w-md mx-auto bg-white overflow-hidden md:max-w-2xl py-4">
-                <div class="faq-item mb-4">
-                    <h3 class="font-semibold text-lg">Wie kann ich Punkte sammeln?</h3>
-                    <p class="text-gray-500">
-                      Du kannst Punkte sammeln, indem du Dienste an der Dienststelle Hollabrunn oder Haugsdorf durchführst.
-                      Je nach Art des Dienstes und der Dauer werden unterschiedliche Punkte vergeben.
-                      Du kannst dir die Punkteverteilung jederzeit ansehen.</p>
-                </div>
-                <div class="faq-item mb-4">
-                    <h3 class="font-semibold text-lg">Wofür kann ich meine gesammelten Punkte verwenden?</h3>
-                    <p class="text-gray-500">Die gesammelten Punkte können gegen verschiedene Goodies eingetauscht werden. Du kannst dir die Goodies unter dem Menüpunkt "Produkte" ansehen.
-                      Wenn du Ideen für weitere Goodies hast, dann melde dich bei uns.</p>
-                </div>
-                <div class="faq-item mb-4">
-                    <h3 class="font-semibold text-lg">Warum sind meine Punkte nicht aktuell?</h3>
-                    <p class="text-gray-500">Die Punkte werden einmal täglich in der Nacht aktualisiert. 
-                      Wenn du der Meinung bist, dass deine Punkte nicht korrekt sind, kannst du dich gerne an unser Team wenden.
-                      Wir werden die Anfrage prüfen und gegebenenfalls eine Aktualisierung deiner Punkte vornehmen.</p>
-                </div>
+          <div class="mx-auto bg-white overflow-hidden py-4">
+            <div v-for="faq in faqs" :key="faq.id" class="faq-item mb-4 cursor-pointer" @click="toggleFAQ(faq.id)">
+              <h3 class="font-semibold text-lg flex justify-between items-center">
+                {{ faq.question }}
+                <i :class="{'fas fa-chevron-down': !faq.isOpen, 'fas fa-chevron-up': faq.isOpen}"></i>
+              </h3>
+              <p v-if="faq.isOpen" class="text-gray-600 transition-height duration-500 ease-in-out px-2 mr-4 mt-2">
+                {{ faq.answer }}
+              </p>
+            </div>
           </div>
         </div>
       </div>
