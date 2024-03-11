@@ -1,5 +1,17 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import HomeView from "../views/HomeView.vue";
+import DiensteView from "../views/DiensteView.vue";
+import ProdukteView from "../views/ProdukteView.vue";
+import StatistikView from "../views/StatistikView.vue";
+import MitarbeiterView from "../views/MitarbeiterView.vue";
+import CartView from "../views/CartView.vue";
+import OrdersView from "../views/OrdersView.vue";
+import TeamView from "../views/TeamView.vue";
+import FAQView from "../views/FAQView.vue";
+
+import AdministrationView from "../views/AdministrationView.vue";
+
+import LogoutView from "../views/LogoutView.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -8,42 +20,59 @@ const routes: Array<RouteRecordRaw> = [
     component: HomeView
   },
   {
-    path: "/employee",
-    name: "employee",
-    component: () => import("../views/Employee.vue")
+    path: "/dienste",
+    name: "dienste",
+    component: DiensteView
   },
   {
-    path: "/ranking",
-    name: "ranking",
-    component: () => import("../views/Ranking.vue")
+    path: "/produkte",
+    name: "produkte",
+    component: ProdukteView
   },
   {
-    path: "/rewards",
-    name: "rewards",
-    component: () => import("../views/Rewards.vue")
+    path: "/statistik",
+    name: "statistik",
+    component: StatistikView
   },
   {
-    path: "/demandtype",
-    name: "demandtype",
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ "../views/DemandType.vue")
+    path: "/mitarbeiter",
+    name: "mitarbeiter",
+    component: MitarbeiterView
   },
   {
-    path: "/faq",
-    name: "faq",
-    component: () => import("../views/FAQ.vue")
+    path: "/administration",
+    name: "administration",
+    component: AdministrationView
+  },
+  {
+    path: "/cart",
+    name: "cart",
+    component: CartView
   },
   {
     path: "/team",
     name: "team",
-    component: () => import("../views/Team.vue")
+    component: TeamView
+  },
+  {
+    path: "/faq",
+    name: "faq",
+    component: FAQView
+  },
+  {
+    path: "/bestellungen",
+    name: "bestellungen",
+    component: OrdersView
+  },
+  {
+    path: "/logout",
+    name: "logout",
+    component: LogoutView
   }
 ];
 
 const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
+  history: createWebHistory(),
   routes
 });
 

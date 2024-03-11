@@ -1,0 +1,215 @@
+// useRewards.js
+import { ref, onMounted } from 'vue';
+
+const rewards = ref([]);
+const isFetching = ref(false);
+const error = ref(null);
+
+async function fetchRewards() {
+  if (rewards.value.length > 0 || isFetching.value) {
+    // Data already fetched or fetching in progress
+    return;
+  }
+
+  isFetching.value = true;
+  try {
+    // Simulate fetching data from an API
+    const response = await fetch('your-api-endpoint/rewards');
+    const data = await response.json();
+    rewards.value = data;
+  } catch (err) {
+    error.value = err;
+  } finally {
+    isFetching.value = false;
+  }
+}
+
+export function useRewards() {
+  onMounted(fetchRewards);
+
+  return { rewards, error, isFetching, fetchRewards };
+}
+
+
+
+
+
+// RewardsComponent.vue
+<script setup>
+import { useRewards } from './useRewards';
+
+const { rewards, error, isFetching, fetchRewards } = useRewards();
+</script>
+
+<template>
+  <div>
+    <div v-if="isFetching">Loading...</div>
+    <div v-if="error">Error: {{ error.message }}</div>
+    <ul v-else>
+      <li v-for="reward in rewards" :key="reward.id">{{ reward.name }}</li>
+    </ul>
+  </div>
+</template>
+
+
+
+
+
+
+
+
+// useDataFetch.js
+import { ref } from 'vue';
+
+export function useDataFetch(fetchFunction) {
+  const data = ref([]);
+  const isLoading = ref(false);
+  const fetchError = ref(null);
+
+  const fetchData = async () => {
+    if (data.value.length > 0 || isLoading.value) {
+      // Data already fetched or fetching in progress
+      return;
+    }
+    isLoading.value = true;
+    try {
+      const fetchedData = await fetchFunction();
+      data.value = fetchedData;
+    } catch (err) {
+      fetchError.value = err;
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
+  return { data, isLoading, fetchError, fetchData };
+}
+
+
+// RewardsComponent.vue
+<script setup>
+import { useDataFetch } from './useDataFetch';
+
+// Specific fetch function for rewards
+async function fetchRewards() {
+  const response = await fetch('/api/rewards');
+  return response.json();
+}
+
+const { data: rewards, isLoading: loadingRewards, fetchError: rewardsError, fetchData: fetchRewardsData } = useDataFetch(fetchRewards);
+</script>
+
+<template>
+  <div>
+    <div v-if="loadingRewards">Loading rewards...</div>
+    <div v-if="rewardsError">Error fetching rewards: {{ rewardsError.message }}</div>
+    <ul v-else>
+      <li v-for="reward in rewards" :key="reward.id">{{ reward.name }}</li>
+    </ul>
+  </div>
+</template>
+
+
+
+
+
+
+
+
+<script setup>
+import { onMounted } from 'vue';
+import { useDataFetch } from './useDataFetch';
+
+// Define your specific fetch function
+async function fetchRewards() {
+  const response = await fetch('/api/rewards');
+  if (!response.ok) {
+    throw new Error('Failed to fetch rewards');
+  }
+  return await response.json();
+}
+
+// Use the composable to get your data and control functions
+const { data: rewards, isLoading: loadingRewards, fetchError: rewardsError, fetchData: fetchRewardsData } = useDataFetch(fetchRewards);
+
+// Automatically fetch rewards when the component mounts
+onMounted(fetchRewardsData);
+</script>
+
+<button @click="fetchRewardsData">Load Rewards</button>
+
+
+
+<script setup>
+import { onMounted } from 'vue';
+import { useDataFetch } from './useDataFetch';
+
+// Specific fetch function for rewards
+async function fetchRewards() {
+  const response = await fetch('/api/rewards');
+  return response.json();
+}
+
+// Use the generic data fetch composable with the specific fetch function
+const { data: rewards, isLoading: loadingRewards, fetchError: rewardsError, fetchData: fetchRewardsData } = useDataFetch(fetchRewards);
+
+// Call fetchRewardsData on component mount to fetch the rewards
+onMounted(fetchRewardsData);
+</script>
+
+
+// useDataFetch.js
+import { ref } from 'vue';
+
+export function useDataFetch(fetchFunction) {
+  const data = ref([]);
+  const isLoading = ref(false);
+  const error = ref(null);
+
+  const fetchData = async () => {
+    if (isLoading.value) return; // Prevent duplicate calls
+    isLoading.value = true;
+    try {
+      const result = await fetchFunction();
+      data.value = result;
+    } catch (e) {
+      error.value = e;
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
+  return { data, isLoading, error, fetchData };
+}
+
+
+<script setup>
+import { onMounted } from 'vue';
+import { useDataFetch } from './useDataFetch';
+
+// Define a specific function to fetch rewards
+async function fetchRewards() {
+  const response = await fetch('/api/rewards');
+  if (!response.ok) throw new Error('Failed to fetch');
+  return await response.json();
+}
+
+// Use the composable with our specific fetch function
+const { data: rewards, isLoading: loadingRewards, error: rewardsError, fetchData } = useDataFetch(fetchRewards);
+
+// Trigger fetching of rewards when the component mounts
+onMounted(fetchData);
+</script>
+
+<template>
+  <div>
+    <div v-if="loadingRewards">Loading...</div>
+    <div v-if="rewardsError">Error: {{ rewardsError.message }}</div>
+    <ul v-else>
+      <li v-for="reward in rewards" :key="reward.id">{{ reward.name }}</li>
+    </ul>
+  </div>
+</template>
+
+
+

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RK-HL Mitarbeiterbereich</title>
+
+    <!-- Matomo -->
+    <script>
+      var _paq = (window._paq = window._paq || []);
+      // Check if the current host is not localhost or 127.0.0.1
+      if (window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
+        /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+        try {
+          const trackerId = localStorage.getItem("remoteId");
+          if (trackerId === null) {
+            throw new Error("Item does not exist in localStorage");
+          }
+          _paq.push(["setUserId", trackerId]);
+        } catch (error) {
+          console.error("Error:", error.message);
+        }
+        _paq.push(["setExcludedQueryParams", ["token"]]);
+        _paq.push(["trackPageView"]);
+        _paq.push(["enableLinkTracking"]);
+        (function () {
+          var u = "//intern.rkhl.at/matomo/";
+          _paq.push(["setTrackerUrl", u + "matomo.php"]);
+          _paq.push(["setSiteId", "1"]);
+          var d = document,
+            g = d.createElement("script"),
+            s = d.getElementsByTagName("script")[0];
+          g.async = true;
+          g.src = u + "matomo.js";
+          s.parentNode.insertBefore(g, s);
+        })();
+      }
+    </script>
+    <!-- End Matomo Code -->
+
+    <script defer src="/js/all.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+  </head>
+  <body class="bg-gray-200">
+    <div id="app" class="bg-gray-200"></div>
+    <script type="module" src="/src/main.ts"></script>
+    <noscript>
+      <!-- Matomo Image Tracker-->
+      <img referrerpolicy="no-referrer-when-downgrade" src="https://intern.rkhl.at/matomo/matomo.php?idsite=1&amp;rec=1" style="border: 0" alt="" />
+      <!-- End Matomo -->
+    </noscript>
+  </body>
+</html>

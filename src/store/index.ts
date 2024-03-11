@@ -1,29 +1,57 @@
-import { createStore } from "vuex";
+import { createStore, Store } from "vuex";
 
-export default createStore({
+// Define your state type
+interface State {
+  jwt: string | null;
+  user: any | null; // Define the User type based on your user object structure
+}
+
+const store = createStore({
   state: {
-    jwt: null as string | null,
-    user: null as any | null
-  },
-  getters: {
-    jwt: (state) => state.jwt,
-    user: (state) => state.user
+    jwt: null,
+    user: null,
+    cartCount: 0
   },
   mutations: {
-    setJwt(state, jwt: string) {
+    setJwt(state, jwt) {
       state.jwt = jwt;
     },
-    setUser(state, user: any) {
+    setUser(state, user) {
       state.user = user;
+    },
+    clearJwt(state) {
+      state.jwt = null; // Clear the JWT token
+    },
+    clearUser(state) {
+      state.user = null; // Clear the user data
+    },
+
+    SET_CART_COUNT(state, count) {
+      state.cartCount = count;
+    },
+    INCREMENT_CART_COUNT(state) {
+      state.cartCount++;
     }
   },
   actions: {
-    login({ commit }, jwt: string) {
+    login({ commit }, jwt) {
       commit("setJwt", jwt);
     },
-    saveUser({ commit }, user: any) {
+    saveUser({ commit }, user) {
       commit("setUser", user);
+    },
+    logout({ commit }) {
+      commit("clearJwt");
+      commit("clearUser");
+    },
+    updateCartCount({ commit }, count) {
+      commit("SET_CART_COUNT", count);
+    },
+    addToCart({ commit }) {
+      commit("INCREMENT_CART_COUNT");
     }
-  },
-  modules: {}
+  }
 });
+
+export type StoreType = Omit<Store<State>, "commit" | "getters">; // Export this type
+export default store;
