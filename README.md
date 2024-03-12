@@ -18,7 +18,7 @@ Dieses Projekt ist eine Dienststellenverwaltungsanwendung, die speziell für die
 
 ![rsz_65f03d2d5eab5](https://github.com/stefanfilip005/RewardLounge_UI/assets/11574618/f9469943-a2ff-495e-975f-151b87f59359)
 
-![rsz_65f03d2d5eab5](https://github.com/stefanfilip005/RewardLounge_UI/assets/11574618/19ee011e-c4d3-4b4b-bd96-0126f3d46e32)
+![rsz_65f040c32218a](https://github.com/stefanfilip005/RewardLounge_UI/assets/11574618/e59325f3-178a-406b-859a-ccd6a6c797f6)
 
 ![rsz_65f03f67e737c](https://github.com/stefanfilip005/RewardLounge_UI/assets/11574618/aa5229ac-9ed4-4516-aa28-7f9b39f7b845)
 
