@@ -78,7 +78,7 @@ onMounted(() => {
                 <div class="text-gray-500 font-normal px-1">{{ product.slogan }}</div>
               </div>
           
-              <div class="text-sm text-gray-500 p-1 max-h-44 overflow-hidden text-justify">
+              <div class="text-sm text-gray-500 p-1 max-h-60 overflow-hidden text-justify">
                 {{ product.description }}
               </div>
           
