@@ -97,7 +97,10 @@ const getGreeting = async () => {
     console.error(error);
   }
 };
-const greetingLines = computed(() => greeting.value.split('\n'));
+const greetingLines = computed(() => {
+  return greeting.value ? greeting.value.split('\n') : [''];
+});
+
 const hasGreetingLines = computed(() => {
   return greetingLines.value.some(line => line.trim() !== '');
 });
@@ -408,24 +411,33 @@ async function downloadFile(monthIndex) {
           <div class="flex flex-col sm:flex-row mb-2 justify-between">
             <div class="flex items-center justify-center mb-2 py-1 space-x-2 text-sm sm:text-base">
               <div 
-                class="py-1 px-3 bg-gray-300 border border-gray-400 rounded-l-lg transition duration-300 ease-in-out hover:bg-gray-600 cursor-pointer" 
+                class="py-1 px-3 bg-gray-300 border border-gray-400 rounded-l-lg transition duration-300 ease-in-out hover:bg-gray-500 cursor-pointer" 
                 :class="{ 'bg-gray-500 text-white': showCategoryLocation === 'combined' }" 
                 @click="showCategoryLocation='combined'">
                 Kombiniert
               </div>
               <div
-                class="py-1 px-3 bg-gray-300 border border-gray-400 transition duration-300 ease-in-out hover:bg-gray-600 cursor-pointer" 
+                class="py-1 px-3 bg-gray-300 border border-gray-400 transition duration-300 ease-in-out hover:bg-gray-500 cursor-pointer" 
                 :class="{ 'bg-gray-500 text-white': showCategoryLocation === 'hollabrunn' }" 
                 @click="showCategoryLocation='hollabrunn'">
                 Hollabrunn
               </div>
               <div
-                class="py-1 px-3 bg-gray-300 border border-gray-400 rounded-r-lg transition duration-300 ease-in-out hover:bg-gray-600 cursor-pointer" 
+                class="py-1 px-3 bg-gray-300 border border-gray-400 rounded-r-lg transition duration-300 ease-in-out hover:bg-gray-500 cursor-pointer" 
                 :class="{ 'bg-gray-500 text-white': showCategoryLocation === 'haugsdorf' }" 
                 @click="showCategoryLocation='haugsdorf'">
                 Haugsdorf
               </div>
             </div>  
+
+
+            <div class="flex items-center justify-center mb-2 py-1 space-x-2 text-sm sm:text-base">
+
+              <a href="https://portal.n.roteskreuz.at/index.php?modul=rps&seite=dienstplan" target="_blank" class="py-1 px-3 bg-gray-300 border rounded-lg border-gray-400 transition duration-300 ease-in-out hover:text-white hover:bg-gray-500 cursor-pointer" >
+                Hol dir gleich hier mehr Punkte
+              </a>
+            </div>
+
           </div>
 
 
@@ -435,7 +447,7 @@ async function downloadFile(monthIndex) {
           <div class="overflow-x-auto">
             <table class="min-w-full table-auto bg-white text-xs sm:text-sm md:text-base">
               <thead>
-                <tr class="bg-gray-400">
+                <tr class="bg-red-800 text-white">
                   <th class="px-2 py-1 text-center">Jahr</th>
                   <th class="px-2 py-1 text-center">Platzierung</th>
                   <th class="px-2 py-1 text-center">Punkte</th>
@@ -451,6 +463,7 @@ async function downloadFile(monthIndex) {
                 </tr>
               </tbody>
             </table>
+
           </div>
         </div>
       </div>
@@ -464,7 +477,7 @@ async function downloadFile(monthIndex) {
           <div class="overflow-x-auto">
             <table class="min-w-full table-auto bg-white text-xs sm:text-sm md:text-base">
               <thead>
-                <tr class="bg-gray-400">
+                <tr class="bg-red-800 text-white">
                   <th class="px-2 py-1 text-left">Datum</th>
                   <th class="px-2 py-1 text-left">Beginn</th>
                   <th class="px-2 py-1 text-left">Ende</th>
@@ -501,7 +514,7 @@ async function downloadFile(monthIndex) {
           <div class="overflow-x-auto">
             <table class="min-w-full table-auto bg-white text-xs sm:text-sm md:text-base">
               <thead>
-                <tr class="bg-gray-400">
+                <tr class="bg-red-800 text-white">
                   <th class="px-2 py-1 text-left">Datum</th>
                   <th class="px-2 py-1 text-left">Beginn</th>
                   <th class="px-2 py-1 text-left">Ende</th>

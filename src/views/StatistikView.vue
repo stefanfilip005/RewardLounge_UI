@@ -23,6 +23,11 @@ const highestYear = ref(2024);
 const shifts = ref<Shift[]>([]);
 
 const groups = ref({
+  'sum' : {
+    'categoryCount' : {'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0},
+    'categoryMinutes' : {'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0},
+    'categoryPoints' : {'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0},
+  }, 
   'ha' : {
     'categoryCount' : {'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0},
     'categoryMinutes' : {'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0},
@@ -50,6 +55,11 @@ const groups = ref({
   }, 
 });
 const groupsHollabrunn = ref({
+  'sum' : {
+    'categoryCount' : {'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0},
+    'categoryMinutes' : {'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0},
+    'categoryPoints' : {'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0},
+  }, 
   'ha' : {
     'categoryCount' : {'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0},
     'categoryMinutes' : {'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0},
@@ -77,6 +87,11 @@ const groupsHollabrunn = ref({
   }, 
 });
 const groupsHaugsdorf = ref({
+  'sum' : {
+    'categoryCount' : {'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0},
+    'categoryMinutes' : {'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0},
+    'categoryPoints' : {'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0},
+  }, 
   'ha' : {
     'categoryCount' : {'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0},
     'categoryMinutes' : {'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0},
@@ -119,6 +134,11 @@ const getShifts = async () => {
     });
     shifts.value = response.data.data;
     groups.value = {
+      'sum' : {
+        'categoryCount' : {'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0},
+        'categoryMinutes' : {'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0},
+        'categoryPoints' : {'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0},
+      }, 
       'ha' : {
         'categoryCount' : {'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0},
         'categoryMinutes' : {'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0},
@@ -146,6 +166,11 @@ const getShifts = async () => {
       }, 
     };
     groupsHollabrunn.value = {
+      'sum' : {
+        'categoryCount' : {'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0},
+        'categoryMinutes' : {'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0},
+        'categoryPoints' : {'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0},
+      }, 
       'ha' : {
         'categoryCount' : {'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0},
         'categoryMinutes' : {'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0},
@@ -173,6 +198,11 @@ const getShifts = async () => {
       }, 
     };
     groupsHaugsdorf.value = {
+      'sum' : {
+        'categoryCount' : {'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0},
+        'categoryMinutes' : {'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0},
+        'categoryPoints' : {'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0},
+      }, 
       'ha' : {
         'categoryCount' : {'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0},
         'categoryMinutes' : {'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0},
@@ -238,6 +268,22 @@ async function changeYear(direction) {
 const fillInPoints = (type,currentItem) => {
   const startTime = new Date(currentItem.start).getTime();
   const endTime = new Date(currentItem.end).getTime();
+
+  groups.value['sum']['categoryCount'][type]++;
+    groups.value['sum']['categoryMinutes'][type] += (endTime - startTime) / (1000 * 60);
+    groups.value['sum']['categoryPoints'][type] += parseInt(currentItem.points,10);
+  if(currentItem.location == 38){
+      //Hollabrunn
+      groupsHollabrunn.value['sum']['categoryCount'][type]++;
+      groupsHollabrunn.value['sum']['categoryMinutes'][type] += (endTime - startTime) / (1000 * 60);
+      groupsHollabrunn.value['sum']['categoryPoints'][type] += parseInt(currentItem.points,10);
+    }else if(currentItem.location == 39){
+      //Haugsdorf
+      groupsHaugsdorf.value['sum']['categoryCount'][type]++;
+      groupsHaugsdorf.value['sum']['categoryMinutes'][type] += (endTime - startTime) / (1000 * 60);
+      groupsHaugsdorf.value['sum']['categoryPoints'][type] += parseInt(currentItem.points,10);
+    }
+
 
   if (currentItem.shiftType.startsWith("HA")) {
     // Hauptamtlich
@@ -387,7 +433,7 @@ const convertMinutesToHours = (minutes) => {
                 class="py-1 px-3 bg-gray-300 border border-gray-400 rounded-l-lg transition duration-300 ease-in-out hover:bg-gray-600 cursor-pointer" 
                 :class="{ 'bg-gray-500 text-white': showCategorySelector === 'counters' }" 
                 @click="showCategorySelector='counters'">
-                Dienste
+                vergangene Dienste
               </div>
               <div
                 class="py-1 px-3 bg-gray-300 border border-gray-400 transition duration-300 ease-in-out hover:bg-gray-600 cursor-pointer" 
@@ -456,6 +502,118 @@ const convertMinutesToHours = (minutes) => {
 
 
           <div class="text-sm sm:text-base">
+
+
+            <div class="flex justify-center items-center flex-col" v-if="!loading">
+              <p class="text-base sm:text-lg font-semibold mt-3 text-slate-600">Gesamtsumme</p>
+            </div>
+            <div class="grid grid-cols-3 md:grid-cols-6 gap-4 pt-1 mb-3 border-b border-b-gray-200 place-items-center" v-if="!loading">
+              <!-- NEF -->
+              <div class="flex flex-col items-center p-2 w-32">
+                <div class="text-center font-semibold py-1 text-gray-500">
+                  <span v-if="showCategorySelector=='counters' && showCategoryLocation =='combined'">{{ groups.sum.categoryCount.nef.toLocaleString() }}</span>
+                  <span v-if="showCategorySelector=='minutes' && showCategoryLocation =='combined'">{{ convertMinutesToHours(groups.sum.categoryMinutes.nef) }}</span>
+                  <span v-if="showCategorySelector=='points' && showCategoryLocation =='combined'">{{ groups.sum.categoryPoints.nef.toLocaleString() }}</span>
+
+                  <span v-if="showCategorySelector=='counters' && showCategoryLocation =='hollabrunn'">{{ groupsHollabrunn.sum.categoryCount.nef.toLocaleString() }}</span>
+                  <span v-if="showCategorySelector=='minutes' && showCategoryLocation =='hollabrunn'">{{ convertMinutesToHours(groupsHollabrunn.sum.categoryMinutes.nef) }}</span>
+                  <span v-if="showCategorySelector=='points' && showCategoryLocation =='hollabrunn'">{{ groupsHollabrunn.sum.categoryPoints.nef.toLocaleString() }}</span>
+
+                  <span v-if="showCategorySelector=='counters' && showCategoryLocation =='haugsdorf'">{{ groupsHaugsdorf.sum.categoryCount.nef.toLocaleString() }}</span>
+                  <span v-if="showCategorySelector=='minutes' && showCategoryLocation =='haugsdorf'">{{ convertMinutesToHours(groupsHaugsdorf.sum.categoryMinutes.nef) }}</span>
+                  <span v-if="showCategorySelector=='points' && showCategoryLocation =='haugsdorf'">{{ groupsHaugsdorf.sum.categoryPoints.nef.toLocaleString() }}</span>
+                </div>
+              </div>
+
+              <!-- RTW -->
+              <div class="flex flex-col items-center p-2 w-32">
+                <div class="text-center font-semibold py-1 text-gray-500">
+                  <span v-if="showCategorySelector=='counters' && showCategoryLocation =='combined'">{{ groups.sum.categoryCount.rtw.toLocaleString() }}</span>
+                  <span v-if="showCategorySelector=='minutes' && showCategoryLocation =='combined'">{{ convertMinutesToHours(groups.sum.categoryMinutes.rtw) }}</span>
+                  <span v-if="showCategorySelector=='points' && showCategoryLocation =='combined'">{{ groups.sum.categoryPoints.rtw.toLocaleString() }}</span>
+
+                  <span v-if="showCategorySelector=='counters' && showCategoryLocation =='hollabrunn'">{{ groupsHollabrunn.sum.categoryCount.rtw.toLocaleString() }}</span>
+                  <span v-if="showCategorySelector=='minutes' && showCategoryLocation =='hollabrunn'">{{ convertMinutesToHours(groupsHollabrunn.sum.categoryMinutes.rtw) }}</span>
+                  <span v-if="showCategorySelector=='points' && showCategoryLocation =='hollabrunn'">{{ groupsHollabrunn.sum.categoryPoints.rtw.toLocaleString() }}</span>
+
+                  <span v-if="showCategorySelector=='counters' && showCategoryLocation =='haugsdorf'">{{ groupsHaugsdorf.sum.categoryCount.rtw.toLocaleString() }}</span>
+                  <span v-if="showCategorySelector=='minutes' && showCategoryLocation =='haugsdorf'">{{ convertMinutesToHours(groupsHaugsdorf.sum.categoryMinutes.rtw) }}</span>
+                  <span v-if="showCategorySelector=='points' && showCategoryLocation =='haugsdorf'">{{ groupsHaugsdorf.sum.categoryPoints.rtw.toLocaleString() }}</span>
+                </div>
+              </div>
+
+              <!-- KTW -->
+              <div class="flex flex-col items-center p-2 w-32">
+                <div class="text-center font-semibold py-1 text-gray-500">
+                  <span v-if="showCategorySelector=='counters' && showCategoryLocation =='combined'">{{ groups.sum.categoryCount.ktw.toLocaleString() }}</span>
+                  <span v-if="showCategorySelector=='minutes' && showCategoryLocation =='combined'">{{ convertMinutesToHours(groups.sum.categoryMinutes.ktw) }}</span>
+                  <span v-if="showCategorySelector=='points' && showCategoryLocation =='combined'">{{ groups.sum.categoryPoints.ktw.toLocaleString() }}</span>
+
+                  <span v-if="showCategorySelector=='counters' && showCategoryLocation =='hollabrunn'">{{ groupsHollabrunn.sum.categoryCount.ktw.toLocaleString() }}</span>
+                  <span v-if="showCategorySelector=='minutes' && showCategoryLocation =='hollabrunn'">{{ convertMinutesToHours(groupsHollabrunn.sum.categoryMinutes.ktw) }}</span>
+                  <span v-if="showCategorySelector=='points' && showCategoryLocation =='hollabrunn'">{{ groupsHollabrunn.sum.categoryPoints.ktw.toLocaleString() }}</span>
+
+                  <span v-if="showCategorySelector=='counters' && showCategoryLocation =='haugsdorf'">{{ groupsHaugsdorf.sum.categoryCount.ktw.toLocaleString() }}</span>
+                  <span v-if="showCategorySelector=='minutes' && showCategoryLocation =='haugsdorf'">{{ convertMinutesToHours(groupsHaugsdorf.sum.categoryMinutes.ktw) }}</span>
+                  <span v-if="showCategorySelector=='points' && showCategoryLocation =='haugsdorf'">{{ groupsHaugsdorf.sum.categoryPoints.ktw.toLocaleString() }}</span>
+                </div>
+              </div>
+
+              <!-- BKTW -->
+              <div class="flex flex-col items-center p-2 w-32">
+                <div class="text-center font-semibold py-1 text-gray-500">
+                  <span v-if="showCategorySelector=='counters' && showCategoryLocation =='combined'">{{ groups.sum.categoryCount.bktw.toLocaleString() }}</span>
+                  <span v-if="showCategorySelector=='minutes' && showCategoryLocation =='combined'">{{ convertMinutesToHours(groups.sum.categoryMinutes.bktw) }}</span>
+                  <span v-if="showCategorySelector=='points' && showCategoryLocation =='combined'">{{ groups.sum.categoryPoints.bktw.toLocaleString() }}</span>
+
+                  <span v-if="showCategorySelector=='counters' && showCategoryLocation =='hollabrunn'">{{ groupsHollabrunn.sum.categoryCount.bktw.toLocaleString() }}</span>
+                  <span v-if="showCategorySelector=='minutes' && showCategoryLocation =='hollabrunn'">{{ convertMinutesToHours(groupsHollabrunn.sum.categoryMinutes.bktw) }}</span>
+                  <span v-if="showCategorySelector=='points' && showCategoryLocation =='hollabrunn'">{{ groupsHollabrunn.sum.categoryPoints.bktw.toLocaleString() }}</span>
+
+                  <span v-if="showCategorySelector=='counters' && showCategoryLocation =='haugsdorf'">{{ groupsHaugsdorf.sum.categoryCount.bktw.toLocaleString() }}</span>
+                  <span v-if="showCategorySelector=='minutes' && showCategoryLocation =='haugsdorf'">{{ convertMinutesToHours(groupsHaugsdorf.sum.categoryMinutes.bktw) }}</span>
+                  <span v-if="showCategorySelector=='points' && showCategoryLocation =='haugsdorf'">{{ groupsHaugsdorf.sum.categoryPoints.bktw.toLocaleString() }}</span>
+                </div>
+              </div>
+
+              <!-- Dienstführer -->
+              <div class="flex flex-col items-center p-2 w-32">
+                <div class="text-center font-semibold py-1 text-gray-500">
+                  <span v-if="showCategorySelector=='counters' && showCategoryLocation =='combined'">{{ groups.sum.categoryCount.df.toLocaleString() }}</span>
+                  <span v-if="showCategorySelector=='minutes' && showCategoryLocation =='combined'">{{ convertMinutesToHours(groups.sum.categoryMinutes.df) }}</span>
+                  <span v-if="showCategorySelector=='points' && showCategoryLocation =='combined'">{{ groups.sum.categoryPoints.df.toLocaleString() }}</span>
+
+                  <span v-if="showCategorySelector=='counters' && showCategoryLocation =='hollabrunn'">{{ groupsHollabrunn.sum.categoryCount.df.toLocaleString() }}</span>
+                  <span v-if="showCategorySelector=='minutes' && showCategoryLocation =='hollabrunn'">{{ convertMinutesToHours(groupsHollabrunn.sum.categoryMinutes.df) }}</span>
+                  <span v-if="showCategorySelector=='points' && showCategoryLocation =='hollabrunn'">{{ groupsHollabrunn.sum.categoryPoints.df.toLocaleString() }}</span>
+
+                  <span v-if="showCategorySelector=='counters' && showCategoryLocation =='haugsdorf'">{{ groupsHaugsdorf.sum.categoryCount.df.toLocaleString() }}</span>
+                  <span v-if="showCategorySelector=='minutes' && showCategoryLocation =='haugsdorf'">{{ convertMinutesToHours(groupsHaugsdorf.sum.categoryMinutes.df) }}</span>
+                  <span v-if="showCategorySelector=='points' && showCategoryLocation =='haugsdorf'">{{ groupsHaugsdorf.sum.categoryPoints.df.toLocaleString() }}</span>
+                </div>
+              </div>
+
+              <!-- Sonstiges -->
+              <div class="flex flex-col items-center p-2 w-32">
+                <div class="text-center font-semibold py-1 text-gray-500">
+                  <span v-if="showCategorySelector=='counters' && showCategoryLocation =='combined'">{{ groups.sum.categoryCount.misc.toLocaleString() }}</span>
+                  <span v-if="showCategorySelector=='minutes' && showCategoryLocation =='combined'">{{ convertMinutesToHours(groups.sum.categoryMinutes.misc) }}</span>
+                  <span v-if="showCategorySelector=='points' && showCategoryLocation =='combined'">{{ groups.sum.categoryPoints.misc.toLocaleString() }}</span>
+
+                  <span v-if="showCategorySelector=='counters' && showCategoryLocation =='hollabrunn'">{{ groupsHollabrunn.sum.categoryCount.misc.toLocaleString() }}</span>
+                  <span v-if="showCategorySelector=='minutes' && showCategoryLocation =='hollabrunn'">{{ convertMinutesToHours(groupsHollabrunn.sum.categoryMinutes.misc) }}</span>
+                  <span v-if="showCategorySelector=='points' && showCategoryLocation =='hollabrunn'">{{ groupsHollabrunn.sum.categoryPoints.misc.toLocaleString() }}</span>
+
+                  <span v-if="showCategorySelector=='counters' && showCategoryLocation =='haugsdorf'">{{ groupsHaugsdorf.sum.categoryCount.misc.toLocaleString() }}</span>
+                  <span v-if="showCategorySelector=='minutes' && showCategoryLocation =='haugsdorf'">{{ convertMinutesToHours(groupsHaugsdorf.sum.categoryMinutes.misc) }}</span>
+                  <span v-if="showCategorySelector=='points' && showCategoryLocation =='haugsdorf'">{{ groupsHaugsdorf.sum.categoryPoints.misc.toLocaleString() }}</span>
+                </div>
+              </div>
+            </div>
+
+
+
+
             <div class="flex justify-center items-center flex-col" v-if="!loading">
               <p class="text-base sm:text-lg font-semibold mt-3 text-slate-600">Hauptberuflich</p>
             </div>

@@ -467,7 +467,7 @@ const filteredShifts = computed(() => {
                 class="py-1 px-3 bg-gray-300 border border-gray-400 rounded-l-lg transition duration-300 ease-in-out hover:bg-gray-600 cursor-pointer" 
                 :class="{ 'bg-gray-500 text-white': showCategorySelector === 'counters' }" 
                 @click="showCategorySelector='counters'">
-                Dienste
+                vergangene Dienste
               </div>
               <div
                 class="py-1 px-3 bg-gray-300 border border-gray-400 transition duration-300 ease-in-out hover:bg-gray-600 cursor-pointer" 
@@ -628,7 +628,7 @@ const filteredShifts = computed(() => {
           <div class="overflow-x-auto" v-if="!loading">
             <table class="min-w-full table-auto bg-white text-xs sm:text-sm md:text-base my-2">
               <thead>
-                <tr class="bg-gray-400">
+                <tr class="bg-red-800 text-white">
                   <th class="px-2 py-1 text-center border border-gray-300">Datum</th>
                   <th class="px-2 py-1 text-center border border-gray-300">Zeitraum</th>
                   <th class="px-2 py-1 text-center border border-gray-300 hidden sm:table-cell">Dauer</th>

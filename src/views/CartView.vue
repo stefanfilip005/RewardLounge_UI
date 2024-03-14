@@ -52,7 +52,7 @@ const rewards = ref<Reward[]>([]);
 const loading = ref(true);
 
 
-
+const sentCart = ref(false);
 
 
 const getRewards = async () => {
@@ -140,6 +140,7 @@ const sendOrder = async () => {
     const notificationMessage = `Bestellung abgeschlossen`;
     const notificationEvent = new CustomEvent('add-notification', { detail: { message: notificationMessage, type: 'success' } });
     window.dispatchEvent(notificationEvent);
+    sentCart.value = true;
   } catch (error) {
     console.error('Error sending order', error);
     // Handle error (e.g., show an error message)
@@ -307,11 +308,20 @@ onMounted(() => {
                     {{ (Math.floor(user.points) - totalPrice).toLocaleString() }} Punkte
                   </div>
                 </div>
+
+                <div v-if="(parseInt(user.points) - totalPrice) < 0" class="pt-4 text-center">
+                  <div class="mb-2 font-bold">Du brauchst mehr Punkte?</div>                 
+                  <a href="https://portal.n.roteskreuz.at/index.php?modul=rps&seite=dienstplan" target="_blank" 
+                    class="mt-2 py-1 px-3 bg-gray-300 border rounded-lg border-gray-400 transition duration-300 ease-in-out hover:text-white hover:bg-gray-500 cursor-pointer" >
+                    Hier geht es zum RPS
+                  </a>
+                </div>
+
               </div>
             
               <div class="flex justify-center mt-4">
                 <button v-if="user.points >= totalPrice" @click="sendOrder" class="mt-4 mb-4 bg-blue-500 hover:bg-blue-700 text-white text-base font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                  Jetzt Bestellen
+                  Jetzt Testbestellung durchführen
                 </button>
               </div>
             </div>
@@ -319,9 +329,17 @@ onMounted(() => {
           </div>
           
           <!-- Display when cart is empty -->
-          <div v-if="!loading && !showCartContent" class="text-center py-8">
+          <div v-if="!loading && !showCartContent && !sentCart" class="text-center py-8">
             Dein Einkaufswagen ist leer
           </div>
+
+          <div v-if="!loading && !showCartContent && sentCart" class="text-center py-2 mt-4 text-sm font-bold text-green-800 bg-green-400 max-w-[500px] align-middle mx-auto">
+            Deine Bestellung wurde aufgegeben<br/>
+            Du erhältst in Kürze eine Bestätigung per E-Mail<br/>
+            <br/>
+            Vielen Dank für deine Bestellung!
+          </div>
+          
 
 
         </div>

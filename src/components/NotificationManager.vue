@@ -44,11 +44,13 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <transition-group name="fade" tag="div" class="fixed top-0 left-0 w-full md:top-0 md:right-0 md:w-auto md:flex md:flex-col md:items-end" :class="{'z-50': notifications.length > 0}">
-        <div v-for="notification in notifications" :key="notification.id" class="notification mb-2 mx-4 mt-4 rounded shadow-lg font-semibold text-gray-800 px-4 py-2 text-center border border-green-800 text-xs md:text-sm" :class="notificationClasses(notification)">
+    <transition-group name="fade" tag="div" class="fixed top-0 left-0 md:top-0 md:right-0 md:flex md:flex-col md:items-end z-50" style="pointer-events: none;" :class="{'z-50': notifications.length > 0}">
+        <div v-for="notification in notifications" :key="notification.id" class="notification mb-2 mx-4 mt-4 rounded shadow-lg font-semibold text-gray-800 px-4 py-2 text-center border border-green-800 text-xs md:text-sm" :class="notificationClasses(notification)" style="pointer-events: auto;">
             {{ notification.message }}
         </div>
     </transition-group>
+    
+    
 </template>
 
 <style scoped>

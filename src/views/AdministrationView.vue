@@ -43,6 +43,7 @@ interface Reward {
   description: string;
   points: any;
   euro: any;
+  is_active: boolean;
 }
 interface LoginLog {
   id: number;
@@ -114,6 +115,7 @@ const isAdministrator = computed(() => {
 
 const showGreeting = ref(false);
 const showFAQ = ref(false);
+const showWishes = ref(false);
 //const showUserSimulation = ref(false);
 const showAccessLog = ref(false);
 const showLoginLog = ref(false);
@@ -245,7 +247,7 @@ const getAccessLogs = async () => {
 const getRewards = async () => {
   rewards.value = [];
   try {
-    const response = await axios.get('../api/rewards', {
+    const response = await axios.get('../api/allRewards', {
       headers: {
         Accepts: "application:json",
         Authorization: `Bearer ${jwt.value}`
@@ -515,6 +517,9 @@ const deleteFAQ = async (faqId) => {
 const toggleShowFAQ = async () => {
   showFAQ.value = !showFAQ.value;
 };
+const toggleShowWishes = async () => {
+  showWishes.value = !showWishes.value;
+};
 /*
 const toggleShowUserSimulation = async () => {
   showUserSimulation.value = !showUserSimulation.value;
@@ -676,7 +681,7 @@ const getLocationName = (locationId) => {
             <div class="overflow-x-auto">
               <table class="min-w-full table-auto bg-white text-xs sm:text-sm md:text-base">
                 <thead>
-                  <tr class="bg-gray-400">
+                  <tr class="bg-red-800 text-white">
                     <th class="px-2 py-1 text-left">Zugriffsdatum (UTC)</th>
                     <th class="px-2 py-1 text-left">Nummer</th>
                     <th class="px-2 py-1 text-left">Vorname</th>
@@ -717,7 +722,7 @@ const getLocationName = (locationId) => {
             <div class="overflow-x-auto">
               <table class="min-w-full table-auto bg-white text-xs sm:text-sm md:text-base">
                 <thead>
-                  <tr class="bg-gray-400">
+                  <tr class="bg-red-800 text-white">
                     <th class="px-2 py-1 text-left">Anmeldedatum (UTC)</th>
                     <th class="px-2 py-1 text-left">Nummer</th>
                     <th class="px-2 py-1 text-left">Vorname</th>
@@ -854,7 +859,7 @@ const getLocationName = (locationId) => {
           <div v-if="showShifts">
             <table class="min-w-full table-auto bg-white text-xs sm:text-sm md:text-base">
               <thead>
-                <tr class="bg-gray-400">
+                <tr class="bg-red-800 text-white">
                   <th class="px-2 py-1 text-left">Datum</th>
                   <th class="px-2 py-1 text-left">Dienststelle</th>
                   <th class="px-2 py-1 text-left">Personalnummer</th>
@@ -894,7 +899,7 @@ const getLocationName = (locationId) => {
             <div class="overflow-x-auto mt-8">
               <table class="min-w-full table-auto bg-white text-xs sm:text-sm md:text-base">
                 <thead>
-                  <tr class="bg-gray-400">
+                  <tr class="bg-red-800 text-white">
                     <th class="px-2 py-1 text-left">Datum</th>
                     <th class="px-2 py-1 text-left">Nummer</th>
                     <th class="px-2 py-1 text-left">Beginn</th>
@@ -986,7 +991,7 @@ const getLocationName = (locationId) => {
 
               <table class="min-w-full table-auto bg-white text-xs sm:text-sm md:text-base">
                 <thead>
-                  <tr class="bg-gray-400">
+                  <tr class="bg-red-800 text-white">
                     <th class="px-2 py-1 text-left">Monat</th>
                     <th class="px-2 py-1 text-center">Datei ansehen</th>
                     <th class="px-2 py-1 text-center">Datei hochladen</th>
@@ -1206,6 +1211,7 @@ const getLocationName = (locationId) => {
                     <th class="px-2 py-1 text-left">Zusatztext</th>
                     <th class="px-2 py-1 text-center"></th>
                     <th class="px-2 py-1 text-center"></th>
+                    <th class="px-2 py-1 text-center"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1219,10 +1225,18 @@ const getLocationName = (locationId) => {
                           <i class="fa-solid fa-right"></i>
                         </div>
                       </td>
-                      <td class="px-2 py-1">{{ reward.name }}</td>
-                      <td class="px-2 py-1">{{ reward.slogan }}</td>
-                      <td class="px-2 py-1 cursor-pointer" @click="selectReward(reward)"><i class="fa-solid fa-pen-to-square"></i></td>
-                      <td class="px-2 py-1 cursor-pointer" @click="pressedDelete(reward)"><i class="fa-solid fa-trash"></i></td>
+                      <td class="px-2 py-1" :class="{ 'text-gray-400': !reward.is_active }"><span v-if="!reward.is_active">[inaktiv] </span>{{ reward.name }}</td>
+                      <td class="px-2 py-1" :class="{ 'text-gray-400': !reward.is_active }"><span v-if="!reward.is_active">[inaktiv] </span>{{ reward.slogan }}</td>
+                      <th class="px-2 py-1 text-center">
+                        <div v-if="reward.is_active">
+                          <i class="fa-solid fa-eye"></i>
+                        </div>
+                        <div v-if="!reward.is_active">
+                          <i class="fa-solid fa-eye-slash text-gray-400"></i>
+                        </div>
+                      </th>
+                      <td class="px-2 py-1 cursor-pointer" :class="{ 'text-gray-400': !reward.is_active }" @click="selectReward(reward)"><i class="fa-solid fa-pen-to-square"></i></td>
+                      <td class="px-2 py-1 cursor-pointer" :class="{ 'text-gray-400': !reward.is_active }" @click="pressedDelete(reward)"><i class="fa-solid fa-trash"></i></td>
                   </tr>
                 </tbody>
               </table>
@@ -1262,6 +1276,22 @@ const getLocationName = (locationId) => {
                     <input type="number" v-model="selectedReward.euro" step="1" id="price" name="price" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                 </div>
               </div>
+
+
+              <div class="grid grid-cols-2 gap-4">
+                <div class="mb-4 flex">
+                    <label for="points" class="block text-gray-700 text-sm font-bold mb-2">Produkt sichtbar?</label>
+                    <div class=" hover:bg-blue-700 text-white font-bold py-1 px-2 rounded focus:outline-none focus:shadow-outline mx-auto text-center cursor-pointer"
+                    :class="{ 'bg-blue-500': selectedReward.is_active, 'bg-gray-300':!selectedReward.is_active }" @click="selectedReward.is_active = true">
+                      Ja
+                    </div>
+                    <div class=" hover:bg-blue-700 text-white font-bold py-1 px-2 rounded focus:outline-none focus:shadow-outline mx-auto text-center cursor-pointer"
+                    :class="{ 'bg-blue-500': !selectedReward.is_active, 'bg-gray-300':selectedReward.is_active }" @click="selectedReward.is_active = false">
+                      Nein
+                    </div>
+                </div>
+              </div>
+
     
               <div class="flex items-center justify-center mb-8">
                 <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mx-auto" @click="updateProduct">
@@ -1347,6 +1377,33 @@ const getLocationName = (locationId) => {
       </div>
 
 
+
+      <div class="w-full max-w-2xl bg-white rounded-lg shadow-md overflow-hidden md:max-w-3xl lg:max-w-5xl xl:max-w-5xl mx-2 mb-6" v-if="isAdministrator">
+        <div class="px-6 py-4">
+          <div class="font-bold text-base md:text-xl mb-4 border-b border-b-gray-400 pb-1 flex justify-between items-center">
+            Wünsche und Ideen an die Entwicklung
+            <div v-if="showWishes" @click="toggleShowWishes()" class="cursor-pointer pr-2">
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div v-if="!showWishes" @click="toggleShowWishes()" class="cursor-pointer pr-2">
+                <i class="fas fa-chevron-up"></i>
+            </div>
+          </div>
+
+          <div v-if="showWishes">
+            <div class="overflow-x-auto">
+              <ul>
+                <li>&bull; Möglichkeit eine Umfrage auf der Startseite anzuzeigen</li>
+                <li>&bull; Wunschprodukt auf der Startseite angezeigt mit Message "dir fehlen dafür noch xy Punkte" und einer Call to Action</li>
+                <li>&bull; E-Mail versenden an MA, wenn Bestellung abgeschlossen/abholbereit bzw. storniert</li>
+                <li>&bull; Rangliste für alle anonym freischalten und eine Möglichkeit für jeden den eigenen Namen anzuzeigen (deanonymisieren)</li>
+                <li>&bull; Im RPS nach offenen Diensten suchen und ableichen mit den eigenen vergangenen Diensten. Wenn es eine Übereinstimmung mit Personal und/oder Dienstlage gibt, dann im Dashboard vorschlagen. (Ableich ob die Person zu dieser Zeit schon selber eingetragen ist)</li>
+              </ul>
+            </div>
+          </div>
+          
+        </div>
+      </div>
 
 
 

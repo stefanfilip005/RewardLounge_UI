@@ -40,12 +40,24 @@ const showCategorySelector = ref('counters');
 const showCategoryLocation = ref('combined');
 
 
+const user = computed(() => store.state.user);
+const isPrivileged = computed(() => {
+    const user = store.state.user; // Directly accessing user from the state
+    if (!user) return false; // Check if user is null
+    return user.isAdministrator || user.isModerator || user.isDeveloper;
+});
+
+
 const getEmployees = async () => {
   employees.value = {};
   employeesHollabrunn.value = {};
   employeesHaugsdorf.value = {};
+  let url = '../api/employees';
+  if(!isPrivileged.value){
+    url = '../api/employeesForRanking';
+  }
   try {
-    const response = await axios.get('../api/employees', {
+    const response = await axios.get(url, {
       headers: {
         Accepts: "application:json",
         Authorization: `Bearer ${jwt.value}`
@@ -59,6 +71,7 @@ const getEmployees = async () => {
   }
 };
 
+
 const makeAdmin = async (employeeId: number) => {
   employees.value = {};
   employeesHollabrunn.value = {};
@@ -70,8 +83,8 @@ const makeAdmin = async (employeeId: number) => {
         'Authorization': `Bearer ${jwt.value}`
       }
     });
-  await getEmployees();
-  await getShifts();
+    await getEmployees();
+    await getShifts();
   } catch (error) {
     console.error(error);
   }
@@ -87,8 +100,8 @@ const makeModerator = async (employeeId: number) => {
         'Authorization': `Bearer ${jwt.value}`
       }
     });
-  await getEmployees();
-  await getShifts();
+    await getEmployees();
+    await getShifts();
   } catch (error) {
     console.error(error);
   }
@@ -118,8 +131,12 @@ const getShifts = async () => {
   employees.value = {};
   employeesHollabrunn.value = {};
   employeesHaugsdorf.value = {};
+  let url = '../api/shifts?year=';
+  if(!isPrivileged.value){
+    url = '../api/shiftsForRanking?year=';
+  }
   try {
-    const response = await axios.get('../api/shifts?year=' + year.value, {
+    const response = await axios.get(url + year.value, {
       headers: {
         Accepts: "application:json",
         Authorization: `Bearer ${jwt.value}`
@@ -211,6 +228,13 @@ const getShifts = async () => {
   }
 };
 
+
+
+
+
+
+
+
 // Create a computed property for sorted employees
 const sortedEmployees = computed(() => {
   let employeesArray: Employee[] = [];
@@ -269,19 +293,17 @@ const convertMinutesToHours = (minutes) => {
   return hours.toLocaleString();
 };
 
+const showRoleButtons = computed(() => {
+    const user = store.state.user; // Directly accessing user from the state
+    if (!user) return false; // Check if user is null
+    return user.isAdministrator || user.isDeveloper;
+});
 
 </script>
 
 <template>
   <div class="bg-gray-200 pt-4">
     
-    <div class="flex justify-center mb-8 mt-2">
-      <div class="w-full max-w-2xlrounded-lg shadow-md overflow-hidden md:max-w-3xl lg:max-w-5xl xl:max-w-5xl mx-2 bg-red-300 border border-red-600">
-        <div class="px-4 py-2 text-sm text-center font-bold text-gray-800">
-          Diese Seite ist nur für Administratoren und Moderatoren sichtbar.
-        </div>
-      </div>
-    </div>
 
     <div class="flex justify-center mb-10">
       <div class="w-full max-w-2xl bg-white rounded-lg shadow-md overflow-hidden md:max-w-3xl lg:max-w-5xl xl:max-w-5xl mx-2">
@@ -338,7 +360,7 @@ const convertMinutesToHours = (minutes) => {
                 class="py-1 px-3 bg-gray-300 border border-gray-400 rounded-l-lg transition duration-300 ease-in-out hover:bg-gray-600 cursor-pointer" 
                 :class="{ 'bg-gray-500 text-white': showCategorySelector === 'counters' }" 
                 @click="showCategorySelector='counters'">
-                Dienste
+                vergangene Dienste
               </div>
               <div
                 class="py-1 px-3 bg-gray-300 border border-gray-400 transition duration-300 ease-in-out hover:bg-gray-600 cursor-pointer" 
@@ -355,21 +377,31 @@ const convertMinutesToHours = (minutes) => {
             </div>
           </div>
 
+          <!--
+          <div class="font-semibold text-center mt-6 mb-2">
+            Mein Name darf in der Rangliste angezeigt werden?
+          </div>
+          <div class="flex items-center justify-center mb-2 py-1 space-x-2 text-sm sm:text-base">
+            <div class="py-1 px-3 bg-gray-300 border rounded-lg border-gray-400 transition duration-300 ease-in-out hover:text-white hover:bg-gray-500 cursor-pointer">Ja</div>
+            <div class="py-1 px-3 bg-gray-300 border rounded-lg border-gray-400 transition duration-300 ease-in-out hover:text-white hover:bg-gray-500 cursor-pointer">Nein</div>
+          </div>
+          -->
+
 
 
           <div class="overflow-x-auto mt-8" v-if="!loading">
             <table class="min-w-full table-auto bg-white text-xs sm:text-sm md:text-base">
               <thead>
-                <tr class="bg-gray-400">
+                <tr class="bg-red-800 text-white">
                   <th class="px-2 py-1 text-left">Rang</th>
                   <th class="px-2 py-1 text-left border-r border-r-gray-600">Name</th>
 
-                  <th class="px-2 py-1 text-center cursor-pointer" @click="showCategorySelector='nef'" :class="{ 'bg-gray-500': showCategorySelector === 'nef' }"><i class="fa-sharp fa-solid fa-stethoscope fa-sm"></i></th>
-                  <th class="px-2 py-1 text-center cursor-pointer" @click="showCategorySelector='rtw'" :class="{ 'bg-gray-500': showCategorySelector === 'rtw' }"><i class="fa-sharp fa-solid fa-truck-medical fa-sm"></i></th>
-                  <th class="px-2 py-1 text-center cursor-pointer" @click="showCategorySelector='ktw'" :class="{ 'bg-gray-500': showCategorySelector === 'ktw' }"><i class="fa-sharp fa-solid fa-stretcher fa-sm"></i></th>
-                  <th class="px-2 py-1 text-center cursor-pointer" @click="showCategorySelector='bktw'" :class="{ 'bg-gray-500': showCategorySelector === 'bktw' }"><i class="fa-sharp fa-solid fa-car-mirrors fa-sm"></i></th>
-                  <th class="px-2 py-1 text-center cursor-pointer" @click="showCategorySelector='df'" :class="{ 'bg-gray-500': showCategorySelector === 'df' }"><i class="fa-sharp fa-solid fa-phone fa-sm"></i></th>
-                  <th class="px-2 py-1 text-center cursor-pointer border-r border-r-gray-600" @click="showCategorySelector='misc'" :class="{ 'bg-gray-500': showCategorySelector === 'misc' }"><i class="fa-sharp fa-solid fa-ellipsis-h fa-sm"></i></th>
+                  <th class="px-2 py-1 text-center cursor-pointer" @click="showCategorySelector='nef'" :class="{ 'bg-red-300': showCategorySelector === 'nef' }"><i class="fa-sharp fa-solid fa-stethoscope fa-sm"></i></th>
+                  <th class="px-2 py-1 text-center cursor-pointer" @click="showCategorySelector='rtw'" :class="{ 'bg-red-300': showCategorySelector === 'rtw' }"><i class="fa-sharp fa-solid fa-truck-medical fa-sm"></i></th>
+                  <th class="px-2 py-1 text-center cursor-pointer" @click="showCategorySelector='ktw'" :class="{ 'bg-red-300': showCategorySelector === 'ktw' }"><i class="fa-sharp fa-solid fa-stretcher fa-sm"></i></th>
+                  <th class="px-2 py-1 text-center cursor-pointer" @click="showCategorySelector='bktw'" :class="{ 'bg-red-300': showCategorySelector === 'bktw' }"><i class="fa-sharp fa-solid fa-car-mirrors fa-sm"></i></th>
+                  <th class="px-2 py-1 text-center cursor-pointer" @click="showCategorySelector='df'" :class="{ 'bg-red-300': showCategorySelector === 'df' }"><i class="fa-sharp fa-solid fa-phone fa-sm"></i></th>
+                  <th class="px-2 py-1 text-center cursor-pointer border-r border-r-gray-600" @click="showCategorySelector='misc'" :class="{ 'bg-red-300': showCategorySelector === 'misc' }"><i class="fa-sharp fa-solid fa-ellipsis-h fa-sm"></i></th>
 
                   <th class="px-2 py-1 text-center">Dienste</th>
                   <th class="px-2 py-1 text-center">Dauer (Std.)</th>
@@ -377,21 +409,28 @@ const convertMinutesToHours = (minutes) => {
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(employee, index) in sortedEmployees" :key="employee.id" :class="{'bg-gray-200': index % 2 === 0, 'hover:bg-blue-300': !employeeMap[employee.id]?.isDeveloper && !employeeMap[employee.id]?.isAdministrator && !employeeMap[employee.id]?.isModerator, 'hover:bg-red-300': employeeMap[employee.id]?.isDeveloper || employeeMap[employee.id]?.isAdministrator || employeeMap[employee.id]?.isModerator}">
+                <tr v-for="(employee, index) in sortedEmployees" :key="employee.id" 
+                  :class="{'bg-gray-200': index % 2 === 0 && !employeeMap[employee.id]?.self, 'bg-red-300':employeeMap[employee.id]?.self,  'hover:bg-blue-300': !employeeMap[employee.id]?.isDeveloper && !employeeMap[employee.id]?.isAdministrator && !employeeMap[employee.id]?.isModerator, 'hover:bg-red-300': employeeMap[employee.id]?.isDeveloper || employeeMap[employee.id]?.isAdministrator || employeeMap[employee.id]?.isModerator}">
                   <td class="px-2 py-1">{{ index + 1 }}</td>
                   <td class="px-2 py-1 border-r border-r-gray-600 flex justify-between items-center">
-                    <div>
+                    <div v-if="!employeeMap[employee.id]?.anonym">
                       <i v-if="employeeMap[employee.id]?.isDeveloper" class="fas fa-user-police-tie text-xs text-gray-600"></i>
                       <i v-if="employeeMap[employee.id]?.isAdministrator" class="fas fa-user-crown text-xs text-red-600"></i>
                       <i v-if="employeeMap[employee.id]?.isModerator" class="fas fa-user-shield text-xs text-blue-600"></i>
                       {{ employeeMap[employee.id]?.firstname }} {{ employeeMap[employee.id]?.lastname }} &nbsp;<span class="text-xs text-gray-500">{{ employee.id }}</span>
                     </div>
+                    <div v-if="employeeMap[employee.id]?.anonym && !employeeMap[employee.id]?.self" class="text-gray-400">
+                      Anonym
+                    </div>
+                    <div v-if="employeeMap[employee.id]?.anonym && employeeMap[employee.id]?.self">
+                      {{ user.firstname }} {{ user.lastname }}
+                    </div>
                   
                     <div class="flex items-center gap-2">
-                      <button v-if="!employeeMap[employee.id]?.isDeveloper && (employeeMap[employee.id]?.isModerator)" @click="makeAdmin(employee.id)" class="text-xs bg-red-200 text-white px-2 py-1 rounded hover:bg-red-600">Administrator ernennen</button>
-                      <button v-if="!employeeMap[employee.id]?.isDeveloper && (!employeeMap[employee.id]?.isModerator && !employeeMap[employee.id]?.isAdministrator)" @click="makeModerator(employee.id)" class="text-xs bg-blue-200 text-white px-2 py-1 rounded hover:bg-blue-600">Moderator ernennen</button>
-                      <button v-if="!employeeMap[employee.id]?.isDeveloper && employeeMap[employee.id]?.isAdministrator" @click="removeAllRoles(employee.id)" class="text-xs bg-red-400 text-white px-2 py-1 rounded hover:bg-red-600">Rechte entfernen</button>
-                      <button v-if="employeeMap[employee.id]?.isDeveloper" class="text-xs bg-red-400 text-white px-2 py-1 rounded cursor-default">Entwickler</button>
+                      <button v-if="showRoleButtons && !employeeMap[employee.id]?.isDeveloper && (employeeMap[employee.id]?.isModerator)" @click="makeAdmin(employee.id)" class="text-xs bg-red-200 text-white px-2 py-1 rounded hover:bg-red-600">Administrator ernennen</button>
+                      <button v-if="showRoleButtons && !employeeMap[employee.id]?.isDeveloper && (!employeeMap[employee.id]?.isModerator && !employeeMap[employee.id]?.isAdministrator)" @click="makeModerator(employee.id)" class="text-xs bg-blue-200 text-white px-2 py-1 rounded hover:bg-blue-600">Moderator ernennen</button>
+                      <button v-if="showRoleButtons && !employeeMap[employee.id]?.isDeveloper && employeeMap[employee.id]?.isAdministrator" @click="removeAllRoles(employee.id)" class="text-xs bg-red-400 text-white px-2 py-1 rounded hover:bg-red-600">Rechte entfernen</button>
+                      <button v-if="showRoleButtons && employeeMap[employee.id]?.isDeveloper" class="text-xs bg-red-400 text-white px-2 py-1 rounded cursor-default">Entwickler</button>
                     </div>
                   </td>
                   

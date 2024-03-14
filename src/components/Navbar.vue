@@ -60,8 +60,8 @@ defineExpose({ fetchCartCount });
                     <!-- Primary Navbar items -->
                     <div class="hidden md:flex items-center space-x-1"> | 
                         <a href="./dienste" class="py-3 px-3 text-white hover:text-white">Dienste</a> | 
-                        <span v-if="showEmployeeLink"><a href="./produkte" class="py-3 px-3 text-white hover:text-white">Produkte</a> | </span>
-                        <a href="./bestellungen" class="py-3 px-3 text-white hover:text-white">Bestellungen</a> | 
+                        <a href="./produkte" class="py-3 px-3 text-white hover:text-white">Produkte</a> |
+                        <a href="./bestellungen" class="py-3 px-3 text-white hover:text-white">Bestellungen</a><span v-if="showEmployeeLink"> | </span> 
                         <span v-if="showEmployeeLink"><a href="./mitarbeiter" class="py-3 px-3 text-white hover:text-white">Mitarbeiter</a> | </span>
                         <span v-if="showEmployeeLink"><a href="./administration" class="py-3 px-3 text-white hover:text-white"><i class="fa-solid fa-user-shield"></i></a> </span>
                     </div>
@@ -92,7 +92,7 @@ defineExpose({ fetchCartCount });
         <!-- Mobile menu -->
         <div class="md:hidden py-2" v-show="isMenuOpen">
             <a href="./dienste" class="block py-2 px-4 text-sm text-white hover:text-white"><i class="fa-solid fa-truck-medical"></i> &nbsp;Dienste</a>
-            <a href="./produkte" v-if="showEmployeeLink" class="block py-2 px-4 text-sm text-white hover:text-white"><i class="fa-solid fa-store"></i> &nbsp;Produkte</a>
+            <a href="./produkte" class="block py-2 px-4 text-sm text-white hover:text-white"><i class="fa-solid fa-store"></i> &nbsp;Produkte</a>
             <a href="./mitarbeiter" v-if="showEmployeeLink" class="block py-2 px-4 text-sm text-white hover:text-white"><i class="fa-solid fa-users"></i> &nbsp;Mitarbeiter</a>
             <a href="./bestellungen" class="block py-2 px-4 text-sm text-white hover:text-white"><i class="fa-solid fa-bags-shopping"></i> &nbsp;Bestellungen</a>
             <a href="./administration" v-if="showEmployeeLink" class="block py-2 px-4 text-sm text-white hover:text-white"><i class="fa-solid fa-user-shield"></i> &nbsp;Administration</a>
