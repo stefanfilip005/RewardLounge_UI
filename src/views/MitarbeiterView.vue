@@ -30,6 +30,8 @@ const year = ref(2024);
 const lowestYear = ref(2023);
 const highestYear = ref(2024);
 
+const showMyNameInRanking = ref(false);
+
 const employees = ref({});
 const employeesHollabrunn = ref({});
 const employeesHaugsdorf = ref({});
@@ -125,6 +127,19 @@ const removeAllRoles = async (employeeId: number) => {
 };
 
 
+const myConfig = async () => {
+  try {
+    const response = await axios.get(`../api/self/employees/config`, {
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${jwt.value}`
+      }
+    });
+    showMyNameInRanking.value = response.data.showNameInRanking;
+  } catch (error) {
+    console.error(error);
+  }
+};
 
 
 const getShifts = async () => {
@@ -276,6 +291,7 @@ const sortedEmployees = computed(() => {
 });
 
 onMounted(async () => {
+  await myConfig();
   await getEmployees();
   await getShifts();
 });
@@ -299,13 +315,77 @@ const showRoleButtons = computed(() => {
     return user.isAdministrator || user.isDeveloper;
 });
 
+
+
+const showConfig = ref(false);
+const toggleShowConfig = async () => {
+  showConfig.value = !showConfig.value;
+};
+
+const setShowMyNameInRanking = async (value) => {
+  try {
+    await axios.post(`../api/self/employees/config`, { showNameInRanking: value }, {
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${jwt.value}`
+      }
+    });
+    showMyNameInRanking.value = value;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 </script>
 
 <template>
   <div class="bg-gray-200 pt-4">
+
     
 
-    <div class="flex justify-center mb-10">
+    <div class="flex flex-col justify-center items-center mb-6 mx-2">
+
+
+      <div class="w-full max-w-2xl bg-white rounded-lg shadow-md overflow-hidden md:max-w-3xl lg:max-w-5xl xl:max-w-5xl mx-2 mb-6">
+        <div class="px-6 py-4">
+          <div class="font-bold text-base md:text-xl mb-4 border-b border-b-gray-400 pb-1 flex justify-between items-center">
+            Meine Einstellungen
+            <div v-if="showConfig" @click="toggleShowConfig()" class="cursor-pointer pr-2">
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div v-if="!showConfig" @click="toggleShowConfig()" class="cursor-pointer pr-2">
+                <i class="fas fa-chevron-up"></i>
+            </div>
+          </div>
+
+          <div class="flex w-full my-3 justify-center items-center" v-if="showConfig">
+            <div class="flex w-full justify-between items-center">
+              <span class="text-left font-semibold">Darf dein Klarname für Alle in der Mitarbeiterübersicht angezeigt werden?</span>
+              <div class="flex gap-2">
+                <!-- Anonym Button -->
+                <button 
+                    :class="{'bg-gray-500 text-white hover:bg-gray-600': !showMyNameInRanking, 'bg-gray-200 hover:bg-gray-300': showMyNameInRanking}" 
+                    class="py-1 px-3 rounded duration-300 ease-in-out cursor-pointer transition" 
+                    @click="setShowMyNameInRanking(false)">
+                    Anonym
+                </button>
+
+                <!-- Klarname Button -->
+                <button 
+                    :class="{'bg-gray-500 text-white hover:bg-gray-600': showMyNameInRanking, 'bg-gray-200 hover:bg-gray-300': !showMyNameInRanking}" 
+                    class="py-1 px-3 rounded duration-300 ease-in-out cursor-pointer transition" 
+                    @click="setShowMyNameInRanking(true)">
+                    Klarname
+                </button>
+
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+
       <div class="w-full max-w-2xl bg-white rounded-lg shadow-md overflow-hidden md:max-w-3xl lg:max-w-5xl xl:max-w-5xl mx-2">
         <div class="px-6 py-4">
           <div class="flex mb-2 border-b border-b-gray-400 pb-1 justify-between">
@@ -377,16 +457,7 @@ const showRoleButtons = computed(() => {
             </div>
           </div>
 
-          <!--
-          <div class="font-semibold text-center mt-6 mb-2">
-            Mein Name darf in der Rangliste angezeigt werden?
-          </div>
-          <div class="flex items-center justify-center mb-2 py-1 space-x-2 text-sm sm:text-base">
-            <div class="py-1 px-3 bg-gray-300 border rounded-lg border-gray-400 transition duration-300 ease-in-out hover:text-white hover:bg-gray-500 cursor-pointer">Ja</div>
-            <div class="py-1 px-3 bg-gray-300 border rounded-lg border-gray-400 transition duration-300 ease-in-out hover:text-white hover:bg-gray-500 cursor-pointer">Nein</div>
-          </div>
-          -->
-
+          
 
 
           <div class="overflow-x-auto mt-8" v-if="!loading">
@@ -417,7 +488,8 @@ const showRoleButtons = computed(() => {
                       <i v-if="employeeMap[employee.id]?.isDeveloper" class="fas fa-user-police-tie text-xs text-gray-600"></i>
                       <i v-if="employeeMap[employee.id]?.isAdministrator" class="fas fa-user-crown text-xs text-red-600"></i>
                       <i v-if="employeeMap[employee.id]?.isModerator" class="fas fa-user-shield text-xs text-blue-600"></i>
-                      {{ employeeMap[employee.id]?.firstname }} {{ employeeMap[employee.id]?.lastname }} &nbsp;<span class="text-xs text-gray-500">{{ employee.id }}</span>
+                      <!-- <img :src="employeeMap[employee.id]?.picture_base64" class="max-h-8 w-auto"/> -->
+                      {{ employeeMap[employee.id]?.firstname }} {{ employeeMap[employee.id]?.lastname }} &nbsp;<span v-if="!employeeMap[employee.id]?.public" class="text-xs text-gray-500">{{ employee.id }}</span>
                     </div>
                     <div v-if="employeeMap[employee.id]?.anonym && !employeeMap[employee.id]?.self" class="text-gray-400">
                       Anonym

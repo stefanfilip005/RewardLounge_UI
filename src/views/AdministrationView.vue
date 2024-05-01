@@ -1392,12 +1392,210 @@ const getLocationName = (locationId) => {
 
           <div v-if="showWishes">
             <div class="overflow-x-auto">
-              <ul>
-                <li>&bull; Möglichkeit eine Umfrage auf der Startseite anzuzeigen</li>
-                <li>&bull; Wunschprodukt auf der Startseite angezeigt mit Message "dir fehlen dafür noch xy Punkte" und einer Call to Action</li>
-                <li>&bull; E-Mail versenden an MA, wenn Bestellung abgeschlossen/abholbereit bzw. storniert</li>
-                <li>&bull; Rangliste für alle anonym freischalten und eine Möglichkeit für jeden den eigenen Namen anzuzeigen (deanonymisieren)</li>
-                <li>&bull; Im RPS nach offenen Diensten suchen und ableichen mit den eigenen vergangenen Diensten. Wenn es eine Übereinstimmung mit Personal und/oder Dienstlage gibt, dann im Dashboard vorschlagen. (Ableich ob die Person zu dieser Zeit schon selber eingetragen ist)</li>
+              <ul class="list-none p-0 m-0">
+                
+                <li class="mb-4 p-4 bg-gray-100 flex justify-between items-start">
+                  <span class="flex-1">Möglichkeit eine Umfrage auf der Startseite anzuzeigen</span>
+                  <span class="flex-none ml-4 text-sm"> <!-- Kleine Schrift für die Beschreibungen -->
+                    <div class="flex items-center mb-1">
+                      <span class="mr-2 font-semibold">Aufwand:</span> <!-- Beschreibungsfeld -->
+                      <span class="text-red-500 flex items-center">
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i> <!-- 3 von 5 Punkten für Komplexität -->
+                      </span>
+                    </div>
+                  </span>
+                </li>
+
+                <li class="mb-4 p-4 bg-gray-100 flex justify-between items-start">
+                  <span class="flex-1">Möglichkeit eine einzige Frage mit 2 Antwortmöglichkeiten auf der Startseite anzuzeigen</span>
+                  <span class="flex-none ml-4 text-sm"> <!-- Kleine Schrift für die Beschreibungen -->
+                    <div class="flex items-center mb-1">
+                      <span class="mr-2 font-semibold">Aufwand:</span> <!-- Beschreibungsfeld -->
+                      <span class="text-yellow-500 flex items-center">
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="far fa-circle"></i>
+                        <i class="far fa-circle"></i> <!-- 3 von 5 Punkten für Komplexität -->
+                      </span>
+                    </div>
+                  </span>
+                </li>
+
+                
+                <li class="mb-4 p-4 bg-gray-100 flex justify-between items-start">
+                  <span class="flex-1">Wunschprodukt auf der Startseite angezeigt mit Message "dir fehlen dafür noch xy Punkte" und einer Call to Action</span>
+                  <span class="flex-none ml-4 text-sm"> <!-- Kleine Schrift für die Beschreibungen -->
+                    <div class="flex items-center mb-1">
+                      <span class="mr-2 font-semibold">Aufwand:</span> <!-- Beschreibungsfeld -->
+                      <span class="text-yellow-500 flex items-center">
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="far fa-circle"></i>
+                        <i class="far fa-circle"></i> <!-- 3 von 5 Punkten für Komplexität -->
+                      </span>
+                    </div>
+                  </span>
+                </li>
+                
+                <li class="mb-4 p-4 bg-gray-100 flex justify-between items-start">
+                  <span class="flex-1">FAQ sortieren</span>
+                  <span class="flex-none ml-4 text-sm"> <!-- Kleine Schrift für die Beschreibungen -->
+                    <div class="flex items-center mb-1">
+                      <span class="mr-2 font-semibold">Aufwand:</span> <!-- Beschreibungsfeld -->
+                      <span class="text-yellow-500 flex items-center">
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="far fa-circle"></i>
+                        <i class="far fa-circle"></i>
+                        <i class="far fa-circle"></i> <!-- 3 von 5 Punkten für Komplexität -->
+                      </span>
+                    </div>
+                  </span>
+                </li>
+
+                <li class="mb-4 p-4 bg-gray-100 flex justify-between items-start">
+                  <span class="flex-1">Kommentar erforderlich für bestimmte Produkte</span>
+                  <span class="flex-none ml-4 text-sm"> <!-- Kleine Schrift für die Beschreibungen -->
+                    <div class="flex items-center mb-1">
+                      <span class="mr-2 font-semibold">Aufwand:</span> <!-- Beschreibungsfeld -->
+                      <span class="text-yellow-500 flex items-center">
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="far fa-circle"></i>
+                        <i class="far fa-circle"></i>
+                        <i class="far fa-circle"></i> <!-- 3 von 5 Punkten für Komplexität -->
+                      </span>
+                    </div>
+                  </span>
+                </li>
+
+                <li class="mb-4 p-4 bg-gray-100 flex justify-between items-start">
+                  <span class="flex-1">E-Mail versenden an MA, wenn Bestellung abgeschlossen/abholbereit bzw. storniert</span>
+                  <span class="flex-none ml-4 text-sm"> <!-- Kleine Schrift für die Beschreibungen -->
+                    <div class="flex items-center mb-1">
+                      <span class="mr-2 font-semibold">Aufwand:</span> <!-- Beschreibungsfeld -->
+                      <span class="text-green-500 flex items-center">
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="far fa-circle"></i>
+                        <i class="far fa-circle"></i>
+                        <i class="far fa-circle"></i>
+                        <i class="far fa-circle"></i> <!-- 3 von 5 Punkten für Komplexität -->
+                      </span>
+                    </div>
+                  </span>
+                </li>
+
+                <li class="mb-4 p-4 bg-gray-100 flex justify-between items-start">
+                  <span class="flex-1">Im RPS nach offenen Diensten suchen und ableichen mit den eigenen vergangenen Diensten. 
+                    Wenn es eine Übereinstimmung mit Personal und/oder Dienstlage gibt, dann im Dashboard vorschlagen. 
+                    (Ableich ob die Person zu dieser Zeit schon selber eingetragen ist).
+                    Bereits probiert, im Moment würde immer die gleiche Person für z.B. Samstag NM vorgeschlagen werden.
+                  </span>
+                  <span class="flex-none ml-4 text-sm"> <!-- Kleine Schrift für die Beschreibungen -->
+                    <div class="flex items-center mb-1">
+                      <span class="mr-2 font-semibold">Aufwand:</span> <!-- Beschreibungsfeld -->
+                      <span class="text-red-500 flex items-center">
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i> <!-- 3 von 5 Punkten für Komplexität -->
+                      </span>
+                    </div>
+                  </span>
+                </li>
+
+
+                <li class="mb-4 p-4 bg-gray-100 flex justify-between items-start">
+                  <span class="flex-1">
+                    Jahresabschluss oder Monatsabschluss einbauen, damit nicht mehr alles immer Berechnet werden muss.
+                  </span>
+                  <span class="flex-none ml-4 text-sm"> <!-- Kleine Schrift für die Beschreibungen -->
+                    <div class="flex items-center mb-1">
+                      <span class="mr-2 font-semibold">Aufwand:</span> <!-- Beschreibungsfeld -->
+                      <span class="text-red-500 flex items-center">
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i> <!-- 3 von 5 Punkten für Komplexität -->
+                      </span>
+                    </div>
+                  </span>
+                </li>
+
+                <li class="mb-4 p-4 bg-gray-100 flex justify-between items-start">
+                  <span class="flex-1">
+                    Produktbilder von der Backend API ins Frontend bringen.
+                  </span>
+                  <span class="flex-none ml-4 text-sm"> <!-- Kleine Schrift für die Beschreibungen -->
+                    <div class="flex items-center mb-1">
+                      <span class="mr-2 font-semibold">Aufwand:</span> <!-- Beschreibungsfeld -->
+                      <span class="text-red-500 flex items-center">
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="far fa-circle"></i> <!-- 3 von 5 Punkten für Komplexität -->
+                      </span>
+                    </div>
+                  </span>
+                </li>
+
+                <li class="mb-4 p-4 bg-gray-100 flex justify-between items-start">
+                  <span class="flex-1">
+                    Möglichkeit die Punktevergabe zu verändern, je nachdem was gerade Schwierig zu besetzen ist.
+                  </span>
+                  <span class="flex-none ml-4 text-sm"> <!-- Kleine Schrift für die Beschreibungen -->
+                    <div class="flex items-center mb-1">
+                      <span class="mr-2 font-semibold">Aufwand:</span> <!-- Beschreibungsfeld -->
+                      <span class="text-red-500 flex items-center">
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="far fa-circle"></i> <!-- 3 von 5 Punkten für Komplexität -->
+                      </span>
+                    </div>
+                  </span>
+                </li>
+
+                <li class="mb-4 p-4 bg-gray-100 flex justify-between items-start">
+                  <span class="flex-1">
+                    Möglichkeit der Punktevergabe unterschiedliche zwischen Dienststellen. (Hollabrunn/Haugsdorf)
+                  </span>
+                  <span class="flex-none ml-4 text-sm"> <!-- Kleine Schrift für die Beschreibungen -->
+                    <div class="flex items-center mb-1">
+                      <span class="mr-2 font-semibold">Aufwand:</span> <!-- Beschreibungsfeld -->
+                      <span class="text-red-500 flex items-center">
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="far fa-circle"></i> <!-- 3 von 5 Punkten für Komplexität -->
+                      </span>
+                    </div>
+                  </span>
+                </li>
+
+
               </ul>
             </div>
           </div>
