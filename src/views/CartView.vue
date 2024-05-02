@@ -14,6 +14,7 @@ interface Reward {
   description: string;
   src1: string;
   points: number;
+  comment_required: boolean;
   // Add other properties of Reward as needed
 }
 
@@ -65,6 +66,7 @@ const getRewards = async () => {
       }
     });
     rewards.value = response.data.data;
+    checkAllCommentsValid();
   } catch (error) {
     console.error(error);
   }
@@ -80,6 +82,7 @@ const getCartContent = async () => {
     });
     cartContent.value = response.data;
     loading.value = false;
+    checkAllCommentsValid();
   } catch (error) {
     loading.value = false;
     console.error(error);
@@ -125,6 +128,12 @@ const deleteCartItem = async (itemId) => {
 };
 
 const sendOrder = async () => {
+  if(!allCommentsValid.value) {
+      const notificationMessage = `Bitte stellen Sie sicher, dass alle erforderlichen Kommentare ausgefüllt sind.`;
+      const notificationEvent = new CustomEvent('add-notification', { detail: { message: notificationMessage, type: 'error' } });
+      window.dispatchEvent(notificationEvent);
+      return;
+  }
   loading.value = true;
   try {
     await axios.post('/api/self/cart/checkout', {}, {
@@ -163,8 +172,13 @@ function debounceSave(item) {
   if (item.debounceTimeoutId) {
     clearTimeout(item.debounceTimeoutId);
   }
-  item.debounceTimeoutId = setTimeout(() => {
-    updateItemNote(item.id, item.note);
+  item.debounceTimeoutId = setTimeout(async () => {
+    try {
+      await updateItemNote(item.id, item.note);
+      checkAllCommentsValid();
+    } catch (error) {
+      console.error('Failed to update note:', error);
+    }
   }, 750);
 }
 async function updateItemNote(itemId, note) {
@@ -217,6 +231,18 @@ watch(totalItemCount, (newCount) => {
   store.dispatch('updateCartCount', newCount);
 });
 
+
+
+const allCommentsValid = ref(true);
+const checkAllCommentsValid = () => {
+  allCommentsValid.value = cartItemsWithDetails.value.every(cartItem => {
+    const reward = rewards.value.find(reward => reward.id === cartItem.reward_id);
+    const note = cartItem.note || '';
+    return !reward || !reward.comment_required || (reward.comment_required && note.trim() !== '');
+  });
+};
+
+
 onMounted(() => {
   getRewards();
   getCartContent();
@@ -268,11 +294,14 @@ onMounted(() => {
                   <div class="text-sm text-gray-700">{{ item.reward.slogan }}</div>
                   <div class="text-xs text-gray-500 mb-2">{{ item.reward.description }}</div>
                 </div>
-
+                
                 <div class="flex-none w-full md:w-auto mx-4">
-                  <div class="text-normal font-semibold">Dein Kommentar</div>
-                  <textarea v-model="item.note" @input="onNoteInput(item)" class="w-full h-24 p-2 bg-white border-2 border-gray-200 rounded"></textarea>
+                  <div :class="{'text-red-500 font-bold': item.reward.comment_required, 'font-bold': !item.reward.comment_required}">Dein Kommentar {{ item.reward.comment_required ? '*' : '' }}</div>
+                  <textarea v-model="item.note" @input="onNoteInput(item)" class="w-full h-24 p-2 bg-white border-2 rounded" :class="{'border-red-500': item.reward.comment_required, 'border-gray-200': !item.reward.comment_required}"></textarea>
                 </div>
+                
+                
+                
 
                 <!-- Right part: Price and Comment Textarea -->
                 <div class="flex-none w-full ml-4 md:w-auto text-right">
@@ -319,11 +348,19 @@ onMounted(() => {
 
               </div>
             
-              <div class="flex justify-center mt-4">
-                <button v-if="user.points >= totalPrice" @click="sendOrder" class="mt-4 mb-4 bg-blue-500 hover:bg-blue-700 text-white text-base font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                  Jetzt Testbestellung durchführen
-                </button>
-              </div>
+                <div class="flex flex-col justify-center items-center mt-4">
+                  <!-- Informational message for incomplete comments -->
+                  <div v-if="user.points >= totalPrice && !allCommentsValid" class="text-red-600 my-4 text-center">
+                    <strong>Bitte erforderliche Kommentare ausfüllen!</strong><br/>
+                    Beispielsweise: Schuhgröße, Kleidergröße, Farbwunsch, etc.
+                  </div>
+              
+                  <!-- Button to place order, with all attributes on a single line -->
+                  <button v-if="user.points >= totalPrice" :disabled="!allCommentsValid" @click="sendOrder" class="mt-4 mb-4 bg-blue-500 hover:bg-blue-700 text-white text-base font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:bg-blue-300">
+                    Jetzt Testbestellung durchführen
+                  </button>
+                </div>
+              
             </div>
 
           </div>

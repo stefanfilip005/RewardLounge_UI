@@ -3,11 +3,20 @@ import { onMounted, ref, computed } from 'vue';
 import { useStore } from 'vuex';
 import axios from 'axios';
 
+interface FAQ {
+  id: number;
+  question: string;
+  answer: string;
+  sort_order: number;
+  isOpen: boolean;
+}
+
+
 const store = useStore();
 
 const jwt = computed(() => store.state.jwt);
 
-const faqs = ref<any[]>([]);
+const faqs = ref<FAQ[]>([]); 
 
 const getFAQs = async () => {
   faqs.value = [];
@@ -18,16 +27,18 @@ const getFAQs = async () => {
         Authorization: `Bearer ${jwt.value}`
       }
     });
-    faqs.value = response.data.data.map(faq => ({
-      ...faq,
-      isOpen: false
-    })).sort((a, b) => a.sort_order - b.sort_order);
+    faqs.value = response.data.data
+      .map((faq: FAQ) => ({
+        ...faq,
+        isOpen: false
+      }))
+      .sort((a: FAQ, b: FAQ) => a.sort_order - b.sort_order);
   } catch (error) {
     console.error(error);
   }
 };
-const toggleFAQ = (faqId) => {
-  const faq = faqs.value.find(f => f.id === faqId);
+const toggleFAQ = (id: number): void => {
+  const faq = faqs.value.find(f => f.id === id);
   if (faq) {
     faq.isOpen = !faq.isOpen;
   }
@@ -54,15 +65,22 @@ onMounted(() => {
 
           <div class="mx-auto bg-white overflow-hidden py-4">
             <div v-for="faq in faqs" :key="faq.id" class="faq-item mb-4 cursor-pointer" @click="toggleFAQ(faq.id)">
-              <h3 class="font-semibold text-lg flex justify-between items-center">
-                {{ faq.question }}
-                <i :class="{'fas fa-chevron-down': !faq.isOpen, 'fas fa-chevron-up': faq.isOpen}"></i>
+              <h3 class=" text-lg flex items-center px-2">
+                <div class="flex-grow flex-1 mr-8">{{ faq.question }}</div>
+                <div class="flex-shrink-0">
+                  <i :class="{'fas fa-chevron-down': !faq.isOpen, 'fas fa-chevron-up': faq.isOpen}"></i>
+                </div>
               </h3>
-              <p v-if="faq.isOpen" class="text-gray-600 transition-height duration-500 ease-in-out px-2 mr-4 mt-2">
+              <p v-if="faq.isOpen" class="text-gray-600 transition-height duration-500 ease-in-out mr-4 mt-2 pl-4 pr-12 text-justify">
                 {{ faq.answer }}
               </p>
+              <!-- Linie wird nach der Antwort gezeigt, wenn geöffnet, sonst nach der Frage -->
+              <div v-if="faq.isOpen" class="border-b border-gray-300 mt-3 mx-2"></div>
+              <div v-else class="border-b border-gray-300 mt-3 mx-2"></div>
             </div>
           </div>
+          
+          
         </div>
       </div>
     </div>

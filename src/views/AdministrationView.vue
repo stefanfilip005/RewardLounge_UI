@@ -6,7 +6,8 @@ import axios from 'axios';
 
 const newFaq = reactive({
   question: '',
-  answer: ''
+  answer: '',
+  sort_order: 0
 });
 
 import OrdersComponent from '../components/OrdersComponent.vue';
@@ -23,6 +24,7 @@ const newProduct = ref<Product>({
   'src1': null,
   'points': '',
   'price': '',
+  'comment_required': false,
 });
 
 interface Product {
@@ -33,6 +35,7 @@ interface Product {
   src1: string | ArrayBuffer | null; // Updated type for src1
   points: string;
   price: string;
+  comment_required: boolean;
 }
 interface Reward {
   id: number;
@@ -44,6 +47,7 @@ interface Reward {
   points: any;
   euro: any;
   is_active: boolean;
+  comment_required: boolean;
 }
 interface LoginLog {
   id: number;
@@ -360,6 +364,7 @@ const saveNewProduct = async () => {
       src1: null,
       points: '',
       price: '',
+      comment_required: false,
     };
   } catch (error) {
     console.error('Error saving product:', error);
@@ -432,14 +437,14 @@ const getFAQs = async () => {
   try {
     const response = await axios.get('../api/faqs', {
       headers: {
-        Accepts: "application:json",
-        Authorization: `Bearer ${jwt.value}`
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${jwt.value}`
       }
     });
     faqs.value = response.data.data.map(faq => ({
       ...faq,
-      isOpen: false, // Used for toggling edit fields
-    }));
+      isOpen: false,
+    })).sort((a, b) => a.sort_order - b.sort_order); // Ensure client-side sorting as a fallback
   } catch (error) {
     console.error('Failed to fetch FAQs:', error);
   }
@@ -472,21 +477,18 @@ const addNewFAQ = async () => {
 };
 const saveFAQ = async (faq) => {
   try {
-    // Determine the URL based on whether we're updating or creating a new FAQ
     const url = faq.id ? `../api/faqs/${faq.id}` : '../api/faqs';
-
-    // Send the request with the FAQ data
     await axios.post(url, {
       question: faq.question,
-      answer: faq.answer
+      answer: faq.answer,
+      sort_order: faq.sort_order // Include sort_order in the payload
     }, {
       headers: {
-        'Accept': 'application/json', // Ensure the header is correctly defined
+        'Accept': 'application/json',
         'Authorization': `Bearer ${jwt.value}`
       }
     });
-
-    getFAQs();
+    getFAQs(); // Refresh the list to reflect changes
   } catch (error) {
     console.error('Failed to save FAQ:', error);
   }
@@ -819,6 +821,7 @@ const getLocationName = (locationId) => {
                 <div>
                   <input type="text" v-model="newFaq.question" placeholder="Neue Frage eingeben" class="w-full p-2 border rounded mb-2 border-red-700" />
                   <textarea v-model="newFaq.answer" placeholder="Neue Antwort eingeben" class="w-full p-2 border rounded mb-2 border-red-700" rows="3"></textarea>
+                  <input type="number" v-model="newFaq.sort_order" placeholder="Sortierreihenfolge" class="w-full p-2 border rounded mb-2 border-red-700" />
                   <button @click="addNewFAQ" class="bg-red-600 text-white p-2 rounded">Neue Frage und Antwort speichern</button>
                 </div>
               </div>
@@ -831,6 +834,7 @@ const getLocationName = (locationId) => {
                 <div v-if="faq.isOpen" class="mt-4 text-center">
                   <input type="text" v-model="faq.question" class="w-full p-1 border rounded border-red-700" />
                   <textarea v-model="faq.answer" class="w-full p-1 border rounded mt-2 border-red-700" rows="3"></textarea>
+                  <input type="number" v-model="faq.sort_order" class="w-full p-1 border rounded mb-2 border-red-700" placeholder="Sortierreihenfolge" />
                   <button @click.stop="saveFAQ(faq)" class="bg-red-600 text-white p-2 rounded mt-2 font-bold">FAQ Speichern</button>
                   <button @click.stop="deleteFAQ(faq.id)" class="bg-gray-500 text-white p-2 rounded mt-2 ml-2">FAQ Löschen</button>
                 </div>
@@ -893,7 +897,9 @@ const getLocationName = (locationId) => {
             <div class="my-3">
               <strong>Information</strong><br>
               Es werden maximal 10 Einträge angezeigt. <br>
-              Die neuen Punkte werden erst in der Nacht übernommen und die Neuberechnung der Rangliste erfolgt ebenfalls in der Nacht.
+              Die neuen Punkte werden erst in der Nacht übernommen und die Neuberechnung der Rangliste erfolgt ebenfalls in der Nacht.<br/>
+              <a href="https://intern.rkhl.at/api/startPointsCalculationForAllEmployees" target="_blank" class="text-blue-500">Die Punkteberechnung jetzt sofort neu starten</a><br/>
+              <a href="https://intern.rkhl.at/api/startRankingCalculation" target="_blank" class="text-blue-500">Die Ranking Berechnung jetzt sofort neu starten (Bitte erst nachdem die Punkteberechnung fertig ist)</a>
             </div>
 
             <div class="overflow-x-auto mt-8">
@@ -1079,6 +1085,21 @@ const getLocationName = (locationId) => {
               <div class="mb-4">
                   <label for="price" class="block text-gray-700 text-sm font-bold mb-2">Preis in cent</label>
                   <input type="number" v-model="newProduct.price" step="1" id="price" name="price" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+              </div>
+            </div>
+
+            
+            <div class="grid grid-cols-2 gap-4">
+              <div class="mb-4 flex">
+                <label for="points" class="block text-gray-700 text-sm font-bold mb-2">Kommentar erforderlich?</label>
+                <div class=" hover:bg-blue-700 text-white font-bold py-1 px-2 rounded focus:outline-none focus:shadow-outline mx-auto text-center cursor-pointer"
+                :class="{ 'bg-blue-500': newProduct.comment_required, 'bg-gray-300':!newProduct.comment_required }" @click="newProduct.comment_required = true">
+                  Ja
+                </div>
+                <div class=" hover:bg-blue-700 text-white font-bold py-1 px-2 rounded focus:outline-none focus:shadow-outline mx-auto text-center cursor-pointer"
+                :class="{ 'bg-blue-500': !newProduct.comment_required, 'bg-gray-300':newProduct.comment_required }" @click="newProduct.comment_required = false">
+                  Nein
+                </div>
               </div>
             </div>
   
@@ -1290,6 +1311,17 @@ const getLocationName = (locationId) => {
                       Nein
                     </div>
                 </div>
+                <div class="mb-4 flex">
+                    <label for="points" class="block text-gray-700 text-sm font-bold mb-2">Kommentar erforderlich?</label>
+                    <div class=" hover:bg-blue-700 text-white font-bold py-1 px-2 rounded focus:outline-none focus:shadow-outline mx-auto text-center cursor-pointer"
+                    :class="{ 'bg-blue-500': selectedReward.comment_required, 'bg-gray-300':!selectedReward.comment_required }" @click="selectedReward.comment_required = true">
+                      Ja
+                    </div>
+                    <div class=" hover:bg-blue-700 text-white font-bold py-1 px-2 rounded focus:outline-none focus:shadow-outline mx-auto text-center cursor-pointer"
+                    :class="{ 'bg-blue-500': !selectedReward.comment_required, 'bg-gray-300':selectedReward.comment_required }" @click="selectedReward.comment_required = false">
+                      Nein
+                    </div>
+                </div>
               </div>
 
     
@@ -1403,9 +1435,6 @@ const getLocationName = (locationId) => {
                         <i class="fas fa-circle"></i>
                         <i class="fas fa-circle"></i>
                         <i class="fas fa-circle"></i>
-                        <i class="fas fa-circle"></i>
-                        <i class="fas fa-circle"></i>
-                        <i class="fas fa-circle"></i> <!-- 3 von 5 Punkten für Komplexität -->
                       </span>
                     </div>
                   </span>
@@ -1419,10 +1448,7 @@ const getLocationName = (locationId) => {
                       <span class="text-yellow-500 flex items-center">
                         <i class="fas fa-circle"></i>
                         <i class="fas fa-circle"></i>
-                        <i class="fas fa-circle"></i>
-                        <i class="fas fa-circle"></i>
                         <i class="far fa-circle"></i>
-                        <i class="far fa-circle"></i> <!-- 3 von 5 Punkten für Komplexität -->
                       </span>
                     </div>
                   </span>
@@ -1437,49 +1463,12 @@ const getLocationName = (locationId) => {
                       <span class="text-yellow-500 flex items-center">
                         <i class="fas fa-circle"></i>
                         <i class="fas fa-circle"></i>
-                        <i class="fas fa-circle"></i>
-                        <i class="fas fa-circle"></i>
                         <i class="far fa-circle"></i>
-                        <i class="far fa-circle"></i> <!-- 3 von 5 Punkten für Komplexität -->
                       </span>
                     </div>
                   </span>
                 </li>
                 
-                <li class="mb-4 p-4 bg-gray-100 flex justify-between items-start">
-                  <span class="flex-1">FAQ sortieren</span>
-                  <span class="flex-none ml-4 text-sm"> <!-- Kleine Schrift für die Beschreibungen -->
-                    <div class="flex items-center mb-1">
-                      <span class="mr-2 font-semibold">Aufwand:</span> <!-- Beschreibungsfeld -->
-                      <span class="text-yellow-500 flex items-center">
-                        <i class="fas fa-circle"></i>
-                        <i class="fas fa-circle"></i>
-                        <i class="fas fa-circle"></i>
-                        <i class="far fa-circle"></i>
-                        <i class="far fa-circle"></i>
-                        <i class="far fa-circle"></i> <!-- 3 von 5 Punkten für Komplexität -->
-                      </span>
-                    </div>
-                  </span>
-                </li>
-
-                <li class="mb-4 p-4 bg-gray-100 flex justify-between items-start">
-                  <span class="flex-1">Kommentar erforderlich für bestimmte Produkte</span>
-                  <span class="flex-none ml-4 text-sm"> <!-- Kleine Schrift für die Beschreibungen -->
-                    <div class="flex items-center mb-1">
-                      <span class="mr-2 font-semibold">Aufwand:</span> <!-- Beschreibungsfeld -->
-                      <span class="text-yellow-500 flex items-center">
-                        <i class="fas fa-circle"></i>
-                        <i class="fas fa-circle"></i>
-                        <i class="fas fa-circle"></i>
-                        <i class="far fa-circle"></i>
-                        <i class="far fa-circle"></i>
-                        <i class="far fa-circle"></i> <!-- 3 von 5 Punkten für Komplexität -->
-                      </span>
-                    </div>
-                  </span>
-                </li>
-
                 <li class="mb-4 p-4 bg-gray-100 flex justify-between items-start">
                   <span class="flex-1">E-Mail versenden an MA, wenn Bestellung abgeschlossen/abholbereit bzw. storniert</span>
                   <span class="flex-none ml-4 text-sm"> <!-- Kleine Schrift für die Beschreibungen -->
@@ -1487,11 +1476,8 @@ const getLocationName = (locationId) => {
                       <span class="mr-2 font-semibold">Aufwand:</span> <!-- Beschreibungsfeld -->
                       <span class="text-green-500 flex items-center">
                         <i class="fas fa-circle"></i>
-                        <i class="fas fa-circle"></i>
                         <i class="far fa-circle"></i>
                         <i class="far fa-circle"></i>
-                        <i class="far fa-circle"></i>
-                        <i class="far fa-circle"></i> <!-- 3 von 5 Punkten für Komplexität -->
                       </span>
                     </div>
                   </span>
@@ -1510,9 +1496,6 @@ const getLocationName = (locationId) => {
                         <i class="fas fa-circle"></i>
                         <i class="fas fa-circle"></i>
                         <i class="fas fa-circle"></i>
-                        <i class="fas fa-circle"></i>
-                        <i class="fas fa-circle"></i>
-                        <i class="fas fa-circle"></i> <!-- 3 von 5 Punkten für Komplexität -->
                       </span>
                     </div>
                   </span>
@@ -1530,9 +1513,6 @@ const getLocationName = (locationId) => {
                         <i class="fas fa-circle"></i>
                         <i class="fas fa-circle"></i>
                         <i class="fas fa-circle"></i>
-                        <i class="fas fa-circle"></i>
-                        <i class="fas fa-circle"></i>
-                        <i class="fas fa-circle"></i> <!-- 3 von 5 Punkten für Komplexität -->
                       </span>
                     </div>
                   </span>
@@ -1549,9 +1529,6 @@ const getLocationName = (locationId) => {
                         <i class="fas fa-circle"></i>
                         <i class="fas fa-circle"></i>
                         <i class="fas fa-circle"></i>
-                        <i class="fas fa-circle"></i>
-                        <i class="fas fa-circle"></i>
-                        <i class="far fa-circle"></i> <!-- 3 von 5 Punkten für Komplexität -->
                       </span>
                     </div>
                   </span>
@@ -1568,9 +1545,6 @@ const getLocationName = (locationId) => {
                         <i class="fas fa-circle"></i>
                         <i class="fas fa-circle"></i>
                         <i class="fas fa-circle"></i>
-                        <i class="fas fa-circle"></i>
-                        <i class="fas fa-circle"></i>
-                        <i class="far fa-circle"></i> <!-- 3 von 5 Punkten für Komplexität -->
                       </span>
                     </div>
                   </span>
@@ -1583,10 +1557,7 @@ const getLocationName = (locationId) => {
                   <span class="flex-none ml-4 text-sm"> <!-- Kleine Schrift für die Beschreibungen -->
                     <div class="flex items-center mb-1">
                       <span class="mr-2 font-semibold">Aufwand:</span> <!-- Beschreibungsfeld -->
-                      <span class="text-red-500 flex items-center">
-                        <i class="fas fa-circle"></i>
-                        <i class="fas fa-circle"></i>
-                        <i class="fas fa-circle"></i>
+                      <span class="text-yellow-500 flex items-center">
                         <i class="fas fa-circle"></i>
                         <i class="fas fa-circle"></i>
                         <i class="far fa-circle"></i> <!-- 3 von 5 Punkten für Komplexität -->
