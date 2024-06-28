@@ -8,6 +8,7 @@ import CartView from "../views/CartView.vue";
 import OrdersView from "../views/OrdersView.vue";
 import TeamView from "../views/TeamView.vue";
 import FAQView from "../views/FAQView.vue";
+import DFView from "../views/DFView.vue";
 
 import AdministrationView from "../views/AdministrationView.vue";
 
@@ -63,6 +64,11 @@ const routes: Array<RouteRecordRaw> = [
     path: "/bestellungen",
     name: "bestellungen",
     component: OrdersView
+  },
+  {
+    path: "/dienstfuehrer",
+    name: "dienstfuehrer",
+    component: DFView
   },
   {
     path: "/logout",

@@ -95,7 +95,8 @@ const processToken = async () => {
         <p>Dieses Intranetportal wird betrieben von der Bezirksstelle Hollabrunn des Roten Kreuzes.</p>
         <a href="/team" class="text-red-400 hover:text-red-200 transition duration-150 ease-in-out">Unser Intranet-Team</a> |
         <a href="/faq" class="text-red-400 hover:text-red-200 transition duration-150 ease-in-out">Häufig gestellte Fragen (FAQ)</a> | 
-        <a href="/statistik" class="text-red-400 hover:text-red-200 transition duration-150 ease-in-out">Statistik</a>
+        <a href="/statistik" class="text-red-400 hover:text-red-200 transition duration-150 ease-in-out">Statistik</a> |
+        <a href="/dienstfuehrer" class="text-red-400 hover:text-red-200 transition duration-150 ease-in-out">Dienstführer Tools</a>
       </div>
     </footer>
   </div>

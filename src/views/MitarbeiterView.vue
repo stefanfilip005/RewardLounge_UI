@@ -18,8 +18,12 @@ interface Employee {
     hours: string,
     isAdministrator: boolean,
     isModerator: boolean,
+    isDienstfuehrer: boolean,
     isDeveloper: boolean,
     pointsDisplay: string,
+    last_shift_date: string,
+    last_sms_sent: string,
+    sms_count: number,
 }
 
 const store = useStore();
@@ -37,7 +41,7 @@ const employeesHollabrunn = ref({});
 const employeesHaugsdorf = ref({});
 const employeeMap = {};
 
-const showCategorySelector = ref('counters');
+const showCategorySelector = ref('points');
 
 const showCategoryLocation = ref('combined');
 

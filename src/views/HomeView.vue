@@ -361,6 +361,24 @@ async function downloadFile(monthIndex) {
       </div>
     </div>
     
+    <!-- Umfragen -->
+    <div class="flex justify-center mb-6">
+      <div class="w-full max-w-2xl bg-white rounded-lg shadow-md overflow-hidden md:max-w-3xl lg:max-w-5xl xl:max-w-5xl mx-2">
+        <div class="px-6 pt-4 pb-2">
+          <div class="font-bold text-base md:text-xl mb-2 border-b border-b-gray-400 pb-1">Aktuelle Umfrage</div>
+          <div class="bg-red-800 text-white px-2 py-1 font-bold mb-1.5">
+            Was soll als nächstes in den Automaten?
+          </div>
+          <div class="py-2 font-semibold border-gray-400 border-b mx-2">
+            <button class="py-0.5 px-1.5 text-sm bg-gray-300 border border-gray-400 rounded-lg transition duration-300 ease-in-out hover:bg-gray-500 cursor-pointer mr-2 font-normal">Abstimmen</button> Mehr Süßigkeiten
+          </div>
+          <div class="py-2 font-semibold mx-2">
+            <button class="py-0.5 px-1.5 text-sm bg-gray-300 border border-gray-400 rounded-lg transition duration-300 ease-in-out hover:bg-gray-500 cursor-pointer mr-2 font-normal">Abstimmen</button> Mehr Süßigkeiten
+          </div>
+        </div>
+      </div>
+    </div>
+
 
 
     <div class="flex justify-center mb-6">

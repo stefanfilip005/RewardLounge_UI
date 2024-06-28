@@ -122,6 +122,7 @@ const showFAQ = ref(false);
 const showWishes = ref(false);
 //const showUserSimulation = ref(false);
 const showAccessLog = ref(false);
+const showQuestion1 = ref(false);
 const showLoginLog = ref(false);
 const showShifts = ref(false);
 const showInfoblaetter = ref(false);
@@ -533,6 +534,9 @@ const toggleShowGreeting = async () => {
 
 const toggleShowAccessLog = async () => {
   showAccessLog.value = !showAccessLog.value;
+};
+const toggleShowQuestion1 = async () => {
+  showQuestion1.value = !showQuestion1.value;
 };
 const toggleShowLoginLog = async () => {
   showLoginLog.value = !showLoginLog.value;
@@ -1032,6 +1036,44 @@ const getLocationName = (locationId) => {
           </div>
         </div>
       </div>
+
+
+
+
+      
+
+      <div class="w-full max-w-2xl bg-white rounded-lg shadow-md overflow-hidden md:max-w-3xl lg:max-w-5xl xl:max-w-5xl mx-2 mb-6" v-if="isAdministrator">
+        <div class="px-6 py-4">
+          <div class="font-bold text-base md:text-xl mb-4 border-b border-b-gray-400 pb-1 flex justify-between items-center">
+            Umfrage - Frage 1
+            <div v-if="showQuestion1" @click="toggleShowQuestion1()" class="cursor-pointer pr-2">
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div v-if="!showQuestion1" @click="toggleShowQuestion1()" class="cursor-pointer pr-2">
+                <i class="fas fa-chevron-up"></i>
+            </div>
+          </div>
+
+          <div v-if="showQuestion1">
+            <div class="overflow-x-auto">
+
+              <p class="text-center font-semibold">
+                Welche Frage soll dem Benutzer auf der Startseite angezeigt werden?
+              </p>
+              <p>
+                <textarea class="w-full h-32 border border-gray-400 rounded-md p-2 mt-2" v-model="greeting"></textarea>
+              </p>
+              <p>
+                <button @click="updateGreeting" class="bg-red-800 text-white font-semibold rounded-md px-4 py-2 mt-2 flex items-center text-xs md:text-sm">
+                  Speichern
+                </button>
+              </p>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
 
 
 
