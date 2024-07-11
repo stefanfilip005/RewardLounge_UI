@@ -362,6 +362,7 @@ async function downloadFile(monthIndex) {
     </div>
     
     <!-- Umfragen -->
+     <!--
     <div class="flex justify-center mb-6">
       <div class="w-full max-w-2xl bg-white rounded-lg shadow-md overflow-hidden md:max-w-3xl lg:max-w-5xl xl:max-w-5xl mx-2">
         <div class="px-6 pt-4 pb-2">
@@ -378,6 +379,7 @@ async function downloadFile(monthIndex) {
         </div>
       </div>
     </div>
+  -->
 
 
 

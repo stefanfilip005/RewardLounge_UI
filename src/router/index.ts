@@ -26,6 +26,11 @@ const routes: Array<RouteRecordRaw> = [
     component: DiensteView
   },
   {
+    path: "/dienste-:id?",
+    name: "diensteForEmployee",
+    component: DiensteView
+  },
+  {
     path: "/produkte",
     name: "produkte",
     component: ProdukteView
@@ -66,8 +71,8 @@ const routes: Array<RouteRecordRaw> = [
     component: OrdersView
   },
   {
-    path: "/dienstfuehrer",
-    name: "dienstfuehrer",
+    path: "/tools",
+    name: "tools",
     component: DFView
   },
   {

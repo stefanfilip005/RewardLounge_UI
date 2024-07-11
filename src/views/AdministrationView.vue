@@ -1041,7 +1041,7 @@ const getLocationName = (locationId) => {
 
 
       
-
+<!--
       <div class="w-full max-w-2xl bg-white rounded-lg shadow-md overflow-hidden md:max-w-3xl lg:max-w-5xl xl:max-w-5xl mx-2 mb-6" v-if="isAdministrator">
         <div class="px-6 py-4">
           <div class="font-bold text-base md:text-xl mb-4 border-b border-b-gray-400 pb-1 flex justify-between items-center">
@@ -1073,7 +1073,7 @@ const getLocationName = (locationId) => {
           </div>
         </div>
       </div>
-
+    -->
 
 
 

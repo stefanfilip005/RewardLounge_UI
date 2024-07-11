@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import axios from 'axios';
-import { ref, onMounted, ComponentPublicInstance   } from 'vue'
+import { ref, onMounted, ComponentPublicInstance, computed   } from 'vue'
 import { useStore } from 'vuex'
 
 import Navbar from "./components/Navbar.vue";
@@ -30,6 +30,14 @@ const setJwt = (jwt: string | null) => {
 const setUser = (user: any | null) => {
   store.dispatch('saveUser', user);
 };
+
+
+const showEmployeeLink = computed(() => {
+    const user = store.state.user; // Directly accessing user from the state
+    if (!user) return false; // Check if user is null
+    return user.isAdministrator || user.isModerator || user.isDeveloper || user.isDienstfuehrer;
+});
+
 
 const processToken = async () => {
   const urlParams = new URLSearchParams(window.location.search);
@@ -95,8 +103,8 @@ const processToken = async () => {
         <p>Dieses Intranetportal wird betrieben von der Bezirksstelle Hollabrunn des Roten Kreuzes.</p>
         <a href="/team" class="text-red-400 hover:text-red-200 transition duration-150 ease-in-out">Unser Intranet-Team</a> |
         <a href="/faq" class="text-red-400 hover:text-red-200 transition duration-150 ease-in-out">Häufig gestellte Fragen (FAQ)</a> | 
-        <a href="/statistik" class="text-red-400 hover:text-red-200 transition duration-150 ease-in-out">Statistik</a> |
-        <a href="/dienstfuehrer" class="text-red-400 hover:text-red-200 transition duration-150 ease-in-out">Dienstführer Tools</a>
+        <a href="/statistik" class="text-red-400 hover:text-red-200 transition duration-150 ease-in-out">Statistik</a> <span v-if="showEmployeeLink"> | </span>
+        <a href="/tools" class="text-red-400 hover:text-red-200 transition duration-150 ease-in-out" v-if="showEmployeeLink">Sonstige Tools</a>
       </div>
     </footer>
   </div>

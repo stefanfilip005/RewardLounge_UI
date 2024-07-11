@@ -19,21 +19,29 @@ interface Employee {
     lastname: string;
     points: number;
     employeeType: string;
+    shift_formatted: string; // Formatted date string
+    shift_relative: string; // Relative date string
 
 }
-
 
 const store = useStore();
 const jwt = computed(() => store.state.jwt);
 
 const employees = ref<Employee[]>([]);
-const filteredGroups = ref({
+  const filteredGroups = ref<{
+  future: Employee[],
+  lastMonth: Employee[],
+  last2Months: Employee[],
+  last6Months: Employee[],
+  lastYear: Employee[],
+  beyondYear: Employee[]
+}>({
   future: [],
   lastMonth: [],
-    last2Months: [],
-    last6Months: [],
-    lastYear: [],
-    beyondYear: []
+  last2Months: [],
+  last6Months: [],
+  lastYear: [],
+  beyondYear: []
 });
 const toggleStates = ref({
   future: false,
@@ -222,7 +230,7 @@ onMounted(() => {
       <div class="w-full max-w-2xl bg-white rounded-lg shadow-md overflow-hidden md:max-w-3xl lg:max-w-5xl xl:max-w-5xl mx-2 mb-6">
         <div class="px-6 py-4">
           <div class="font-bold text-base md:text-xl mb-4 border-b border-b-gray-400 pb-1 flex justify-between items-center">
-            Dienstführer Tools &bull; Übersicht
+            Sonstige Tools &bull; Übersicht
             <div v-if="showInfo" @click="toggleShowInfo()" class="cursor-pointer pr-2">
                 <i class="fas fa-chevron-down"></i>
             </div>

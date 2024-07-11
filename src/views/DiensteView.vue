@@ -1,13 +1,39 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue';
 import { useStore } from 'vuex';
-import axios from 'axios';
+import { useRoute } from 'vue-router';
+import axios, { AxiosResponse } from 'axios';
 
 import { Shift } from './../types.ts';
 import { monthNames, convertMinutesToHours, getLocationName, formatPoints, calculateDuration, formatTime, formatDate } from './../utils.ts';
 
-
+const route = useRoute();
 const store = useStore();
+
+interface Employee {
+    id: number; // assuming id is a number
+    count: number;
+    minutes: number;
+    points: number;
+    nef: number;
+    rtw: number;
+    ktw: number;
+    bktw: number;
+    df: number;
+    misc: number;
+    firstname: string,
+    lastname: string,
+    countLocale: string,
+    hours: string,
+    isAdministrator: boolean,
+    isModerator: boolean,
+    isDienstfuehrer: boolean,
+    isDeveloper: boolean,
+    pointsDisplay: string,
+    last_shift_date: string,
+    last_sms_sent: string,
+    sms_count: number,
+}
 
 const jwt = computed(() => store.state.jwt);
 const loading = ref(true);
@@ -17,9 +43,19 @@ const toggleShowPunkte = async () => {
   showPunkte.value = !showPunkte.value;
 };
 
+const employeeId = ref<string | string[] | null>(null);
+const employeeData = ref<Employee>({ id: 0, firstname:'',lastname:'', count: 0, minutes: 0, points: 0, nef: 0, rtw: 0, ktw: 0, bktw: 0, df: 0, misc: 0, countLocale: '', hours: '', isAdministrator: false, isModerator: false, isDienstfuehrer: false, isDeveloper: false, pointsDisplay: '', last_shift_date: '', last_sms_sent: '', sms_count: 0 });
+
+/*
+const showEmployeeSelection = ref(false);
+const toggleShowEmployeeSelection = async () => {
+  showEmployeeSelection.value = !showEmployeeSelection.value;
+};*/
+
 const year = ref(2024);
 const lowestYear = ref(2023);
 const highestYear = ref(2024);
+//const searchPersonalNumber = ref('');
 
 const shifts = ref<Shift[]>([]);
 const shiftsHollabrunn = ref<Shift[]>([]);
@@ -40,18 +76,45 @@ const categoryPointsHaugsdorf = ref({'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0
 const showCategorySelector = ref('counters');
 const showCategoryLocation = ref('combined');
 
-const getShifts = async () => {
-  shifts.value = [];
-  shiftsHollabrunn.value = [];
-  shiftsHaugsdorf.value = [];
+
+const getEmployeeData = async () => {
   try {
-    const response = await axios.get('../api/self/shifts?year=' + year.value, {
+    const response = await axios.get('../api/employeeFromId?employeeId=' + employeeId.value, {
       headers: {
         Accepts: "application:json",
         Authorization: `Bearer ${jwt.value}`
       }
     });
-    shifts.value = response.data.data;
+    employeeData.value = response.data.data;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const getShifts = async () => {
+  shifts.value = [];
+  shiftsHollabrunn.value = [];
+  shiftsHaugsdorf.value = [];
+  try {
+    let response: AxiosResponse | null = null;
+    if(employeeId.value === null){
+      response = await axios.get('../api/self/shifts?year=' + year.value, {
+        headers: {
+          Accepts: "application:json",
+          Authorization: `Bearer ${jwt.value}`
+        }
+      });
+    }else{
+      response = await axios.get('../api/shiftsForEmployee?year=' + year.value + '&employeeId=' + employeeId.value, {
+        headers: {
+          Accepts: "application:json",
+          Authorization: `Bearer ${jwt.value}`
+        }
+      });
+    }
+
+
+    shifts.value = response!.data.data;
     categoryCount.value = {'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0};
     categoryMinutes.value = {'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0};
     categoryPoints.value = {'nef' : 0, 'rtw' : 0, 'ktw' : 0, 'bktw' : 0, 'df' : 0, 'misc' : 0};
@@ -178,6 +241,11 @@ const getShifts = async () => {
 };
 
 onMounted(() => {
+  employeeId.value = route.params.id || null;
+  if(employeeId.value !== null){
+    //Grab the name of the employee
+    getEmployeeData();
+  }
   getShifts();
 });
 async function changeYear(direction) {
@@ -411,11 +479,50 @@ const filteredShifts = computed(() => {
       </div>
 
 
+      <!--
+      <div class="w-full max-w-2xl bg-white rounded-lg shadow-md overflow-hidden md:max-w-3xl lg:max-w-5xl xl:max-w-5xl mx-2 mb-6">
+        <div class="px-6 py-4">
+          <div class="font-bold text-base md:text-xl mb-4 border-b border-b-gray-400 pb-1 flex justify-between items-center">
+            Mitarbeiter Selektion
+            <div v-if="showEmployeeSelection" @click="toggleShowEmployeeSelection()" class="cursor-pointer pr-2">
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div v-if="!showEmployeeSelection" @click="toggleShowEmployeeSelection()" class="cursor-pointer pr-2">
+                <i class="fas fa-chevron-up"></i>
+            </div>
+          </div>
+
+
+          <div class="flex w-full my-3 justify-center items-center" v-if="showEmployeeSelection">
+            <div class="bg-red-100 border border-red-500 px-2 py-1 rounded relative" role="alert">
+              <span class="block sm:inline">Die Selektion ist nur für Dienstführer, Moderatoren und Administratoren sichtbar</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-2 place-items-center" v-if="showEmployeeSelection">
+            <input type="text" v-model="searchPersonalNumber" class="shadow appearance-none border border-gray-800 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+          </div>
+
+        </div>
+      </div>
+    -->
+
+
+
+
+
+
+
 
       <div class="w-full max-w-2xl bg-white rounded-lg shadow-md overflow-hidden md:max-w-3xl lg:max-w-5xl xl:max-w-5xl mx-2 mb-6">
         <div class="px-6 py-4">
           <div class="flex mb-2 border-b border-b-gray-400 pb-1 justify-between">
-            <div class="font-bold text-base md:text-xl">Deine Dienste</div>
+            <div v-if="employeeId" class="font-bold text-base md:text-xl">
+              Dienste von {{ employeeData.firstname }} {{ employeeData.lastname }}
+            </div>
+            <div v-else class="font-bold text-base md:text-xl">
+              Deine Dienste
+            </div>
             <div v-if="!loading" class="flex items-center font-bold text-base md:text-xl text-gray-500">
               <div 
                 class="cursor-pointer"
@@ -441,7 +548,17 @@ const filteredShifts = computed(() => {
           </div>
 
 
+
+          <div v-if="!loading && employeeId !== null" class=" mt-4 mb-2">
+            <!-- Single div acting as a container with all necessary styling -->
+            <div class="flex items-center text-center justify-center py-1 w-full bg-blue-100 border border-blue-500 px-2 rounded" role="alert">
+              <span class="block sm:inline text-blue-700"><span class="font-bold">Du hast einen Mitarbeiter ausgewählt.<br/></span>Es werden nicht deine eigenen Dienste angezeigt.</span>
+            </div>
+          </div>
+
+
           <div class="flex flex-col sm:flex-row mb-2 justify-between" v-if="!loading">
+
             <div class="flex items-center justify-center mb-2 py-1 space-x-2 text-sm sm:text-base">
               <div 
                 class="py-1 px-3 bg-gray-300 border border-gray-400 rounded-l-lg transition duration-300 ease-in-out hover:bg-gray-600 cursor-pointer" 

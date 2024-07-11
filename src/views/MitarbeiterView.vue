@@ -50,7 +50,7 @@ const user = computed(() => store.state.user);
 const isPrivileged = computed(() => {
     const user = store.state.user; // Directly accessing user from the state
     if (!user) return false; // Check if user is null
-    return user.isAdministrator || user.isModerator || user.isDeveloper;
+    return user.isAdministrator || user.isModerator || user.isDienstfuehrer || user.isDeveloper;
 });
 
 
@@ -101,6 +101,23 @@ const makeModerator = async (employeeId: number) => {
   employeesHaugsdorf.value = {};
   try {
     await axios.post(`../api/employees/make-moderator/${employeeId}`, {}, {
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${jwt.value}`
+      }
+    });
+    await getEmployees();
+    await getShifts();
+  } catch (error) {
+    console.error(error);
+  }
+};
+const makeDF = async (employeeId: number) => {
+  employees.value = {};
+  employeesHollabrunn.value = {};
+  employeesHaugsdorf.value = {};
+  try {
+    await axios.post(`../api/employees/make-df/${employeeId}`, {}, {
       headers: {
         'Accept': 'application/json',
         'Authorization': `Bearer ${jwt.value}`
@@ -492,8 +509,14 @@ const setShowMyNameInRanking = async (value) => {
                       <i v-if="employeeMap[employee.id]?.isDeveloper" class="fas fa-user-police-tie text-xs text-gray-600"></i>
                       <i v-if="employeeMap[employee.id]?.isAdministrator" class="fas fa-user-crown text-xs text-red-600"></i>
                       <i v-if="employeeMap[employee.id]?.isModerator" class="fas fa-user-shield text-xs text-blue-600"></i>
+                      <i v-if="employeeMap[employee.id]?.isDienstfuehrer" class="fas fa-phone text-xs text-sky-600"></i>
                       <!-- <img :src="employeeMap[employee.id]?.picture_base64" class="max-h-8 w-auto"/> -->
-                      {{ employeeMap[employee.id]?.firstname }} {{ employeeMap[employee.id]?.lastname }} &nbsp;<span v-if="!employeeMap[employee.id]?.public" class="text-xs text-gray-500">{{ employee.id }}</span>
+                      {{ employeeMap[employee.id]?.firstname }} {{ employeeMap[employee.id]?.lastname }} &nbsp;<span v-if="!employeeMap[employee.id]?.public" class="text-xs text-gray-500">
+                        <router-link 
+                          :to="'/dienste-' + employee.id"
+                          class="text-gray-500 no-underline hover:text-blue-700 hover:underline">
+                          {{ employee.id }}
+                        </router-link></span>
                     </div>
                     <div v-if="employeeMap[employee.id]?.anonym && !employeeMap[employee.id]?.self" class="text-gray-400">
                       Anonym
@@ -504,7 +527,8 @@ const setShowMyNameInRanking = async (value) => {
                   
                     <div class="flex items-center gap-2">
                       <button v-if="showRoleButtons && !employeeMap[employee.id]?.isDeveloper && (employeeMap[employee.id]?.isModerator)" @click="makeAdmin(employee.id)" class="text-xs bg-red-200 text-white px-2 py-1 rounded hover:bg-red-600">Administrator ernennen</button>
-                      <button v-if="showRoleButtons && !employeeMap[employee.id]?.isDeveloper && (!employeeMap[employee.id]?.isModerator && !employeeMap[employee.id]?.isAdministrator)" @click="makeModerator(employee.id)" class="text-xs bg-blue-200 text-white px-2 py-1 rounded hover:bg-blue-600">Moderator ernennen</button>
+                      <button v-if="showRoleButtons && !employeeMap[employee.id]?.isDeveloper && (employeeMap[employee.id]?.isDienstfuehrer && !employeeMap[employee.id]?.isModerator && !employeeMap[employee.id]?.isAdministrator)" @click="makeModerator(employee.id)" class="text-xs bg-blue-200 text-white px-2 py-1 rounded hover:bg-blue-600">Moderator ernennen</button>
+                      <button v-if="showRoleButtons && !employeeMap[employee.id]?.isDeveloper && (!employeeMap[employee.id]?.isDienstfuehrer && !employeeMap[employee.id]?.isModerator && !employeeMap[employee.id]?.isAdministrator)" @click="makeDF(employee.id)" class="text-xs bg-sky-200 text-white px-2 py-1 rounded hover:bg-sky-600">DF ernennen</button>
                       <button v-if="showRoleButtons && !employeeMap[employee.id]?.isDeveloper && employeeMap[employee.id]?.isAdministrator" @click="removeAllRoles(employee.id)" class="text-xs bg-red-400 text-white px-2 py-1 rounded hover:bg-red-600">Rechte entfernen</button>
                       <button v-if="showRoleButtons && employeeMap[employee.id]?.isDeveloper" class="text-xs bg-red-400 text-white px-2 py-1 rounded cursor-default">Entwickler</button>
                     </div>
