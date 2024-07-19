@@ -359,6 +359,59 @@ const filteredShifts = computed(() => {
               </div>
             </div>
 
+            <!-- BEL -->
+            <div class="flex flex-col items-center p-2 w-64">
+              <i class="fa-sharp fa-solid fa-vest fa-2x text-gray-400"></i>
+              <div class="text-center font-semibold py-2 text-gray-500">BEL</div>
+              <div class="text-center font-semibold py-2 text-gray-500">
+                <table class="table-auto w-full text-sm text-left text-gray-500">  
+                  <thead>
+                    <tr>
+                      <th class="px-4 py-2"></th>
+                      <th class="px-4 py-2">pro Stunde</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="border px-4 py-2">Fahrer</td>
+                      <td class="border px-4 py-2 text-center font-normal">4.8</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <!-- BKTW -->
+            <div class="flex flex-col items-center p-2 w-86">
+              <i class="fa-sharp fa-solid fa-car-mirrors fa-2x text-gray-400"></i>
+              <div class="text-center font-semibold py-2 text-gray-500">BKTW</div>
+              <div class="text-center font-semibold py-2 text-gray-500">
+                <table class="table-auto w-full text-sm text-left text-gray-500">  
+                  <thead>
+                    <tr>
+                      <th class="px-4 py-2"></th>
+                      <th class="px-4 py-2">pro Stunde</th>
+                      <th class="px-4 py-2">pro Dienst</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="border px-4 py-2">Fahrer</td>
+                      <td class="border px-4 py-2 text-center font-normal">24</td>
+                      <td class="border px-4 py-2 text-center font-normal">50</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-2 mt-4 place-items-center" v-if="showPunkte">
+
+
+
+
             <!-- NEF -->
             <div class="flex flex-col items-center p-2 w-64">
               <i class="fa-sharp fa-solid fa-stethoscope fa-2x text-gray-400"></i>
@@ -414,53 +467,6 @@ const filteredShifts = computed(() => {
                 </table>
               </div>
             </div>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-2 mt-4 place-items-center" v-if="showPunkte">
-            <!-- BEL -->
-            <div class="flex flex-col items-center p-2 w-64">
-              <i class="fa-sharp fa-solid fa-vest fa-2x text-gray-400"></i>
-              <div class="text-center font-semibold py-2 text-gray-500">BEL</div>
-              <div class="text-center font-semibold py-2 text-gray-500">
-                <table class="table-auto w-full text-sm text-left text-gray-500">  
-                  <thead>
-                    <tr>
-                      <th class="px-4 py-2"></th>
-                      <th class="px-4 py-2">pro Stunde</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td class="border px-4 py-2">Fahrer</td>
-                      <td class="border px-4 py-2 text-center font-normal">4.8</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <!-- BKTW -->
-            <div class="flex flex-col items-center p-2 w-86">
-              <i class="fa-sharp fa-solid fa-car-mirrors fa-2x text-gray-400"></i>
-              <div class="text-center font-semibold py-2 text-gray-500">BKTW</div>
-              <div class="text-center font-semibold py-2 text-gray-500">
-                <table class="table-auto w-full text-sm text-left text-gray-500">  
-                  <thead>
-                    <tr>
-                      <th class="px-4 py-2"></th>
-                      <th class="px-4 py-2">pro Stunde</th>
-                      <th class="px-4 py-2">pro Dienst</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td class="border px-4 py-2">Fahrer</td>
-                      <td class="border px-4 py-2 text-center font-normal">24</td>
-                      <td class="border px-4 py-2 text-center font-normal">50</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
 
             <!-- KTW -->
             <div class="flex flex-col items-center p-2 w-86">
@@ -495,9 +501,6 @@ const filteredShifts = computed(() => {
                 </table>
               </div>
             </div>
-
-
-
 
 
           </div>

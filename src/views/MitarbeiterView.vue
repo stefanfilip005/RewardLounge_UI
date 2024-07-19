@@ -157,6 +157,9 @@ const myConfig = async () => {
       }
     });
     showMyNameInRanking.value = response.data.showNameInRanking;
+    if(!showMyNameInRanking.value){
+      showConfig.value = true;
+    }
   } catch (error) {
     console.error(error);
   }
@@ -488,16 +491,16 @@ const setShowMyNameInRanking = async (value) => {
                   <th class="px-2 py-1 text-left">Rang</th>
                   <th class="px-2 py-1 text-left border-r border-r-gray-600">Name</th>
 
-                  <th class="px-2 py-1 text-center cursor-pointer" @click="showCategorySelector='nef'" :class="{ 'bg-red-300': showCategorySelector === 'nef' }"><i class="fa-sharp fa-solid fa-stethoscope fa-sm"></i></th>
-                  <th class="px-2 py-1 text-center cursor-pointer" @click="showCategorySelector='rtw'" :class="{ 'bg-red-300': showCategorySelector === 'rtw' }"><i class="fa-sharp fa-solid fa-truck-medical fa-sm"></i></th>
-                  <th class="px-2 py-1 text-center cursor-pointer" @click="showCategorySelector='ktw'" :class="{ 'bg-red-300': showCategorySelector === 'ktw' }"><i class="fa-sharp fa-solid fa-stretcher fa-sm"></i></th>
-                  <th class="px-2 py-1 text-center cursor-pointer" @click="showCategorySelector='bktw'" :class="{ 'bg-red-300': showCategorySelector === 'bktw' }"><i class="fa-sharp fa-solid fa-car-mirrors fa-sm"></i></th>
-                  <th class="px-2 py-1 text-center cursor-pointer" @click="showCategorySelector='df'" :class="{ 'bg-red-300': showCategorySelector === 'df' }"><i class="fa-sharp fa-solid fa-phone fa-sm"></i></th>
-                  <th class="px-2 py-1 text-center cursor-pointer border-r border-r-gray-600" @click="showCategorySelector='misc'" :class="{ 'bg-red-300': showCategorySelector === 'misc' }"><i class="fa-sharp fa-solid fa-ellipsis-h fa-sm"></i></th>
+                  <th class="px-2 py-1 text-center cursor-pointer" @click="showCategorySelector='nef'" :class="{ 'bg-red-400': showCategorySelector === 'nef' }"><i class="fa-sharp fa-solid fa-stethoscope fa-sm"></i></th>
+                  <th class="px-2 py-1 text-center cursor-pointer" @click="showCategorySelector='rtw'" :class="{ 'bg-red-400': showCategorySelector === 'rtw' }"><i class="fa-sharp fa-solid fa-truck-medical fa-sm"></i></th>
+                  <th class="px-2 py-1 text-center cursor-pointer" @click="showCategorySelector='ktw'" :class="{ 'bg-red-400': showCategorySelector === 'ktw' }"><i class="fa-sharp fa-solid fa-stretcher fa-sm"></i></th>
+                  <th class="px-2 py-1 text-center cursor-pointer" @click="showCategorySelector='bktw'" :class="{ 'bg-red-400': showCategorySelector === 'bktw' }"><i class="fa-sharp fa-solid fa-car-mirrors fa-sm"></i></th>
+                  <th class="px-2 py-1 text-center cursor-pointer" @click="showCategorySelector='df'" :class="{ 'bg-red-400': showCategorySelector === 'df' }"><i class="fa-sharp fa-solid fa-phone fa-sm"></i></th>
+                  <th class="px-2 py-1 text-center cursor-pointer border-r border-r-gray-600" @click="showCategorySelector='misc'" :class="{ 'bg-red-400': showCategorySelector === 'misc' }"><i class="fa-sharp fa-solid fa-ellipsis-h fa-sm"></i></th>
 
-                  <th class="px-2 py-1 text-center">Dienste</th>
-                  <th class="px-2 py-1 text-center">Dauer (Std.)</th>
-                  <th class="px-2 py-1 text-center">Punkte</th>
+                  <th class="px-2 py-1 text-center cursor-pointer" @click="showCategorySelector='counters'" :class="{ 'bg-red-400': showCategorySelector === 'counters' }">Dienste</th>
+                  <th class="px-2 py-1 text-center cursor-pointer" @click="showCategorySelector='minutes'" :class="{ 'bg-red-400': showCategorySelector === 'minutes' }">Dauer (Std.)</th>
+                  <th class="px-2 py-1 text-center cursor-pointer" @click="showCategorySelector='points'" :class="{ 'bg-red-400': showCategorySelector === 'points' }">Punkte</th>
                 </tr>
               </thead>
               <tbody>
@@ -522,7 +525,7 @@ const setShowMyNameInRanking = async (value) => {
                       Anonym
                     </div>
                     <div v-if="employeeMap[employee.id]?.anonym && employeeMap[employee.id]?.self">
-                      {{ user.firstname }} {{ user.lastname }}
+                      Anonym <small class="text-gray-500">({{ user.firstname }} {{ user.lastname }})</small>
                     </div>
                   
                     <div class="flex items-center gap-2">
