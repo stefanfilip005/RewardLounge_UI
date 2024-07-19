@@ -10,7 +10,7 @@ const jwt = computed(() => store.state.jwt);
 const stateCodes = ref({
   0: 'Offen',
   1: 'In Prüfung',
-  2: 'In Lieferung',
+  2: 'Ist Bestellt',
   3: 'Abholbereit',
   4: 'Erledigt',
   5: 'Storniert'

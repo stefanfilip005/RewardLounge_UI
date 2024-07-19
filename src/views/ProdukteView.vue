@@ -89,8 +89,8 @@ onMounted(() => {
                 </div>
                 <div class="w-2/5 p-1 h-44 flex flex-col items-center justify-center">
                   <div class="font-semibold py-2 text-center">
-                    {{ product.points.toLocaleString() }} Punkte<br/>
-                    <span class="text-sm text-gray-400">{{ (product.euro/100).toFixed(2).replace('.', ',').toLocaleString() }} Euro</span>
+                    {{ product.points.toLocaleString() }} Punkte<!-- <br/>
+                    <span class="text-sm text-gray-400">{{ (product.euro/100).toFixed(2).replace('.', ',').toLocaleString() }} Euro</span>-->
                   </div>
                   <button class="bg-red-800 text-white font-semibold rounded-md px-4 py-2 mt-2 flex items-center text-xs md:text-sm" @click="addToCart(product.id,product.name)">
                     In den Warenkorb

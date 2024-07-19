@@ -124,7 +124,7 @@ const employeeMap = computed(() => {
 const stateCodes = {
     'Offen': 0,
     'In Prüfung': 1,
-    'Auftrag erteilt': 2,
+    'Ist Bestellt': 2,
     'Abholbereit': 3,
     'Erledigt': 4,
     'Storniert': 5
@@ -132,7 +132,7 @@ const stateCodes = {
 const stateCodesMap = ref({
   0: 'Offen',
   1: 'In Prüfung',
-  2: 'In Lieferung',
+  2: 'Ist Bestellt',
   3: 'Abholbereit',
   4: 'Erledigt',
   5: 'Storniert'
@@ -149,7 +149,7 @@ const orderCounts = computed(() => {
     const counts = {
         'Offen': 0,
         'In Prüfung': 0,
-        'Auftrag erteilt': 0,
+        'Ist Bestellt': 0,
         'Abholbereit': 0,
         'Erledigt': 0,
         'Storniert': 0
@@ -212,9 +212,9 @@ function onNoteInput(order) {
             <div v-if="showOpenOrders">
                 <div class="overflow-x-auto">
                     <div class="min-w-full bg-white mt-0 mb-0">
-                      <div class="grid grid-cols-3 sm:grid-cols-6 text-xs sm:text-sm md:text-base">
+                      <div class="grid grid-cols-2 sm:grid-cols-4 text-xs sm:text-sm md:text-base">
                           <!-- Tab items -->
-                          <div v-for="status in ['Offen', 'In Prüfung', 'Auftrag erteilt', 'Abholbereit', 'Erledigt', 'Storniert']" :key="status"
+                          <div v-for="status in ['Offen', 'Ist Bestellt', 'Abholbereit', 'Storniert']" :key="status"
                             @click="updateTabSelection(status)"
                             class="px-2 py-1 text-center border border-gray-300 cursor-pointer"
                             :class="{'font-semibold bg-slate-300': isSelected(status), 'hover:bg-blue-300': !isSelected(status)}">
@@ -236,7 +236,7 @@ function onNoteInput(order) {
                       </div>
 
                       <div class="w-full border-t border-t-gray-500 border-t-">
-                        <div class="grid grid-cols-3 sm:grid-cols-6 text-xs sm:text-sm md:text-base">
+                        <div class="grid grid-cols-2 sm:grid-cols-4 text-xs sm:text-sm md:text-base">
                           <div class="px-2 py-1 text-center border border-gray-300">
                             <button v-if="order.state != 0" @click="changeOrderState(order.id, 0)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold text-xs p-1 rounded">
                               Zurücksetzen
@@ -248,6 +248,7 @@ function onNoteInput(order) {
                               {{ employeeMap[order.remoteId]?.firstname ?? '' }} {{ employeeMap[order.remoteId]?.lastname ?? '' }}<br/>
                             </div>
                           </div>
+                          <!--
                           <div class="px-2 py-1 text-center border border-gray-300">
                             <button v-if="order.state != 1" @click="changeOrderState(order.id, 1)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold text-xs p-1 rounded">
                               Prüfung starten
@@ -261,13 +262,13 @@ function onNoteInput(order) {
                               <strong>Geprüft von</strong><br/>
                               {{ employeeMap[order.state_1_user_id]?.firstname ?? '' }} {{ employeeMap[order.state_1_user_id]?.lastname ?? '' }}<br/>
                             </div>
-                          </div>
+                          </div>-->
                           <div class="px-2 py-1 text-center border border-gray-300">
                             <button v-if="order.state != 2" @click="changeOrderState(order.id, 2)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold text-xs p-1 rounded">
                               Bestellung durchgeführt
                             </button>
                             <div v-else class="font-bold text-red-600">
-                              Auftrag erteilt
+                              Ist Bestellt
                             </div>
                             <div class="text-xs" v-if="order.state_2_datetime">
                               <strong>Bestellt am</strong><br/>
@@ -290,6 +291,7 @@ function onNoteInput(order) {
                               {{ employeeMap[order.state_3_user_id]?.firstname ?? '' }} {{ employeeMap[order.state_3_user_id]?.lastname ?? '' }}<br/>
                             </div>
                           </div>
+                          <!--
                           <div class="px-2 py-1 text-center border border-gray-300">
                             <button v-if="order.state != 4" @click="changeOrderState(order.id, 4)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold text-xs p-1 rounded">
                               Bestellung abgeschlossen
@@ -304,6 +306,7 @@ function onNoteInput(order) {
                               {{ employeeMap[order.state_4_user_id]?.firstname ?? '' }} {{ employeeMap[order.state_4_user_id]?.lastname ?? '' }}<br/>
                             </div>
                           </div>
+                          -->
                           <div class="px-2 py-1 text-center border border-gray-300">
                             <button v-if="order.state != 5" @click="changeOrderState(order.id, 5)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold text-xs p-1 rounded">
                               Bestellung stornieren
@@ -335,15 +338,19 @@ function onNoteInput(order) {
                         <thead class="bg-gray-300">
                             <tr>
                               <th class="px-4 py-2 text-left">Bild</th>
-                                <th class="px-4 py-2 text-left">Produkt</th>
-                                <th class="px-4 py-2 text-left">Kundenkommentar</th>
-                                <th class="px-4 py-2 text-left">Kosten</th>
+                              <th class="px-4 py-2 text-left">Art. Nr.</th>
+                              <th class="px-4 py-2 text-left">Produkt</th>
+                              <th class="px-4 py-2 text-left">Kundenkommentar</th>
+                              <th class="px-4 py-2 text-left">Kosten</th>
                             </tr>
                         </thead>
                         <tbody>
                           <tr v-for="item in order.order_items">
                             <td>
                               <img :src="item.src1" alt="Reward Image" class="h-12 w-12 object-contain mx-2" v-if="item.src1">
+                            </td>
+                            <td class="text-sm text-gray-600">
+                              {{ item.article_number }}
                             </td>
                             <td>
                               <span class="font-semibold" v-if="item.quantity > 1">{{ item.quantity }} x {{ item.name }}</span><span class="font-semibold">{{ item.name }}</span><br/>
@@ -353,8 +360,9 @@ function onNoteInput(order) {
                               {{ item.note }}
                             </td>
                             <td>
-                              <span class="font-semibold">{{ (item.points * item.quantity) }} Punkte</span><br/>
-                              <small class="text-gray-600">{{ (item.euro/100 * item.quantity)}} EUR</small>
+                              <span class="font-semibold">{{ (item.points * item.quantity) }} Punkte</span>
+                              <!--<br/>
+                              <small class="text-gray-600">{{ (item.euro/100 * item.quantity)}} EUR</small>-->
                             </td>
                           </tr>
                         </tbody>

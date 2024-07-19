@@ -30,6 +30,34 @@ const loading = ref(false);
 
 
           <div class="flex flex-col" v-if="!loading">
+
+
+            <!-- Administrators -->
+            <div class="mb-8 mt-4 pb-6 border-b border-gray-300">
+              <h2 class="text-center text-base font-semibold">Moderatoren</h2>
+              <p class="text-center text-xs text-gray-500 mb-4">Nehmen sich Zeit für die Abwicklung eurer Bestellungen.</p>
+              <div class="flex justify-center items-center flex-wrap gap-6">
+                <!-- Demo Administrator -->
+                <div class="px-4 py-3 text-center text-sm">
+                  <img src="https://intern.rkhl.at/images/Rein.png" class="mx-auto h-auto max-h-[75px] mb-1"/>
+                  <p class="font-semibold">Erich Rein</p>
+                  <p class="text-xs">Erich.Rein@n.roteskreuz.at</p>
+                </div>
+                <div class="px-4 py-3 text-center text-sm">
+                  <img src="https://intern.rkhl.at/images/Beer.png" class="mx-auto h-auto max-h-[75px] mb-1"/>
+                  <p class="font-semibold">Gerhard Beer</p>
+                  <p class="text-xs">Gerhard.Beer@n.roteskreuz.at</p>
+                </div>
+                <div class="px-4 py-3 text-center text-sm">
+                  <img src="https://intern.rkhl.at/images/Kronberger.png" class="mx-auto h-auto max-h-[75px] mb-1"/>
+                  <p class="font-semibold">Christoph Kronberger</p>
+                  <p class="text-xs">Christoph.Kronberger@n.roteskreuz.at</p>
+                </div>
+              </div>
+            </div>
+
+
+
             <!-- Administrators -->
             <div class="mb-8 mt-4 pb-6 border-b border-gray-300">
               <h2 class="text-center text-base font-semibold">Administratoren</h2>

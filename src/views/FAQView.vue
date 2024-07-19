@@ -9,6 +9,7 @@ interface FAQ {
   answer: string;
   sort_order: number;
   isOpen: boolean;
+  answerLines?: string[]; 
 }
 
 
@@ -47,6 +48,14 @@ const toggleFAQ = (id: number): void => {
 onMounted(() => {
   getFAQs();
 });
+
+const processedFAQs = computed(() => {
+  return faqs.value.map(faq => ({
+    ...faq,
+    answerLines: faq.answer.split('\n')
+  }));
+});
+
 </script>
 
 
@@ -64,7 +73,7 @@ onMounted(() => {
           </div>
 
           <div class="mx-auto bg-white overflow-hidden py-4">
-            <div v-for="faq in faqs" :key="faq.id" class="faq-item mb-4 cursor-pointer" @click="toggleFAQ(faq.id)">
+            <div v-for="faq in processedFAQs" :key="faq.id" class="faq-item mb-4 cursor-pointer" @click="toggleFAQ(faq.id)">
               <h3 class=" text-lg flex items-center px-2">
                 <div class="flex-grow flex-1 mr-8">{{ faq.question }}</div>
                 <div class="flex-shrink-0">
@@ -72,7 +81,11 @@ onMounted(() => {
                 </div>
               </h3>
               <p v-if="faq.isOpen" class="text-gray-600 transition-height duration-500 ease-in-out mr-4 mt-2 pl-4 pr-12 text-justify">
-                {{ faq.answer }}
+                <template v-for="(line, index) in faq.answerLines">
+                  {{ line }}
+                  <!-- Do not add a break after the last line -->
+                  <br v-if="index < faq.answerLines.length - 1">
+                </template>
               </p>
               <!-- Linie wird nach der Antwort gezeigt, wenn geöffnet, sonst nach der Frage -->
               <div v-if="faq.isOpen" class="border-b border-gray-300 mt-3 mx-2"></div>

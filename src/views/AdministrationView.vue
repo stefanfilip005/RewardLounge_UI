@@ -25,6 +25,7 @@ const newProduct = ref<Product>({
   'points': '',
   'price': '',
   'comment_required': false,
+  'article_number': ''
 });
 
 interface Product {
@@ -36,6 +37,7 @@ interface Product {
   points: string;
   price: string;
   comment_required: boolean;
+  article_number: string;
 }
 interface Reward {
   id: number;
@@ -48,6 +50,7 @@ interface Reward {
   euro: any;
   is_active: boolean;
   comment_required: boolean;
+  article_number: string;
 }
 interface LoginLog {
   id: number;
@@ -122,7 +125,7 @@ const showFAQ = ref(false);
 const showWishes = ref(false);
 //const showUserSimulation = ref(false);
 const showAccessLog = ref(false);
-const showQuestion1 = ref(false);
+//const showQuestion1 = ref(false);
 const showLoginLog = ref(false);
 const showShifts = ref(false);
 const showInfoblaetter = ref(false);
@@ -366,6 +369,7 @@ const saveNewProduct = async () => {
       points: '',
       price: '',
       comment_required: false,
+      article_number: ''
     };
   } catch (error) {
     console.error('Error saving product:', error);
@@ -535,9 +539,11 @@ const toggleShowGreeting = async () => {
 const toggleShowAccessLog = async () => {
   showAccessLog.value = !showAccessLog.value;
 };
+/*
 const toggleShowQuestion1 = async () => {
   showQuestion1.value = !showQuestion1.value;
 };
+*/
 const toggleShowLoginLog = async () => {
   showLoginLog.value = !showLoginLog.value;
 };
@@ -698,7 +704,13 @@ const getLocationName = (locationId) => {
                 <tbody>
                   <tr v-for="(log, index) in accessLogs" :key="log.id" :class="{'bg-gray-200': index % 2 === 0, 'hover:bg-blue-300': true}">
                     <td class="px-2 py-1">{{ log.date }}</td>
-                    <td class="px-2 py-1">{{ log.remoteId }}</td>
+                    <td class="px-2 py-1">
+                      <router-link 
+                        :to="'/dienste-' + log.remoteId"
+                        class="text-gray-500 no-underline hover:text-blue-700 hover:underline">
+                        {{ log.remoteId }}
+                      </router-link>
+                    </td>
                     <td class="px-2 py-1">{{ log.firstname }}</td>
                     <td class="px-2 py-1">{{ log.lastname }}</td>
                     <td class="px-2 py-1">{{ log.count }}</td>
@@ -738,7 +750,13 @@ const getLocationName = (locationId) => {
                 <tbody>
                   <tr v-for="(log, index) in loginLogs" :key="log.id" :class="{'bg-gray-200': index % 2 === 0, 'hover:bg-blue-300': true}">
                     <td class="px-2 py-1">{{ log.logged_in_at }}</td>
-                    <td class="px-2 py-1">{{ log.remoteId }}</td>
+                    <td class="px-2 py-1">
+                      <router-link 
+                        :to="'/dienste-' + log.remoteId"
+                        class="text-gray-500 no-underline hover:text-blue-700 hover:underline">
+                        {{ log.remoteId }}
+                      </router-link>
+                    </td>
                     <td class="px-2 py-1">{{ log.firstname }}</td>
                     <td class="px-2 py-1">{{ log.lastname }}</td>
                   </tr>
@@ -1130,6 +1148,13 @@ const getLocationName = (locationId) => {
               </div>
             </div>
 
+            <div class="grid grid-cols-2 gap-4">
+              <div class="mb-4">
+                  <label for="article_number" class="block text-gray-700 text-sm font-bold mb-2">Artikelnummer RK-Shop</label>
+                  <input type="text" v-model="newProduct.article_number" id="article_number" name="article_number" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+              </div>
+            </div>
+
             
             <div class="grid grid-cols-2 gap-4">
               <div class="mb-4 flex">
@@ -1144,6 +1169,7 @@ const getLocationName = (locationId) => {
                 </div>
               </div>
             </div>
+
   
             <!--
             <div class="grid grid-cols-2 gap-4">
@@ -1184,7 +1210,9 @@ const getLocationName = (locationId) => {
                       </div>
                   </div>
                   <div class="w-full mb-1 text-sm text-gray-500 p-1 max-h-32 overflow-hidden text-justify">
-                    {{ (newProduct.description !== '' && newProduct.description.length > 1) ? newProduct.description : 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.'}}
+                    {{
+                      (newProduct && newProduct.description && newProduct.description.length > 1) ? newProduct.description : 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.'
+                    }}
                   </div>
                   <div class="flex flex-row w-full">
                       <div class="w-2/3 p-4 h-44 flex items-center justify-center">
@@ -1366,6 +1394,15 @@ const getLocationName = (locationId) => {
                 </div>
               </div>
 
+
+              <div class="grid grid-cols-2 gap-4">
+                <div class="mb-4">
+                    <label for="article_number" class="block text-gray-700 text-sm font-bold mb-2">Artikelnummer RK-Shop</label>
+                    <input type="text" v-model="selectedReward.article_number" id="article_number" name="article_number" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                </div>
+              </div>
+
+
     
               <div class="flex items-center justify-center mb-8">
                 <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mx-auto" @click="updateProduct">
@@ -1393,7 +1430,7 @@ const getLocationName = (locationId) => {
                         </div>
                     </div>
                     <div class="w-full mb-1 text-sm text-gray-500 p-1 max-h-32 overflow-hidden text-justify">
-                      {{ (selectedReward.description !== '' && selectedReward.description.length > 1) ? selectedReward.description : 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.'}}
+                      {{ (selectedReward && selectedReward.description && selectedReward.description.length > 1) ? selectedReward.description : 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.'}}
                     </div>
                     <div class="flex flex-row w-full">
                         <div class="w-2/3 p-4 h-44 flex items-center justify-center">
@@ -1496,6 +1533,19 @@ const getLocationName = (locationId) => {
                   </span>
                 </li>
 
+                <li class="mb-4 p-4 bg-gray-100 flex justify-between items-start">
+                  <span class="flex-1">Bestellungen drucken</span>
+                  <span class="flex-none ml-4 text-sm"> <!-- Kleine Schrift für die Beschreibungen -->
+                    <div class="flex items-center mb-1">
+                      <span class="mr-2 font-semibold">Aufwand:</span> <!-- Beschreibungsfeld -->
+                      <span class="text-red-500 flex items-center">
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                      </span>
+                    </div>
+                  </span>
+                </li>
                 
                 <li class="mb-4 p-4 bg-gray-100 flex justify-between items-start">
                   <span class="flex-1">Wunschprodukt auf der Startseite angezeigt mit Message "dir fehlen dafür noch xy Punkte" und einer Call to Action</span>
@@ -1511,20 +1561,6 @@ const getLocationName = (locationId) => {
                   </span>
                 </li>
                 
-                <li class="mb-4 p-4 bg-gray-100 flex justify-between items-start">
-                  <span class="flex-1">E-Mail versenden an MA, wenn Bestellung abgeschlossen/abholbereit bzw. storniert</span>
-                  <span class="flex-none ml-4 text-sm"> <!-- Kleine Schrift für die Beschreibungen -->
-                    <div class="flex items-center mb-1">
-                      <span class="mr-2 font-semibold">Aufwand:</span> <!-- Beschreibungsfeld -->
-                      <span class="text-green-500 flex items-center">
-                        <i class="fas fa-circle"></i>
-                        <i class="far fa-circle"></i>
-                        <i class="far fa-circle"></i>
-                      </span>
-                    </div>
-                  </span>
-                </li>
-
                 <li class="mb-4 p-4 bg-gray-100 flex justify-between items-start">
                   <span class="flex-1">Im RPS nach offenen Diensten suchen und ableichen mit den eigenen vergangenen Diensten. 
                     Wenn es eine Übereinstimmung mit Personal und/oder Dienstlage gibt, dann im Dashboard vorschlagen. 
