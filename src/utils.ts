@@ -1,6 +1,8 @@
-export const year = 2024;
+const currentYear = new Date().getFullYear();
+
+export const year = currentYear;
 export const lowestYear = 2023;
-export const highestYear = 2024;
+export const highestYear = currentYear;
 
 export const monthNames: string[] = ["Jänner", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
 
@@ -27,8 +29,10 @@ export const formatTime = (datetime) => {
 export const getLocationName = (locationId) => {
   switch (locationId) {
     case 39:
+    case 82:
       return "Haugsdorf";
     case 38:
+    case 3316:
       return "Hollabrunn";
     default:
       return locationId;

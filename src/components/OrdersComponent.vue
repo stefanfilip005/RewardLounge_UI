@@ -106,6 +106,22 @@ const changeOrderState = async (orderId: number, newState: number) => {
   }
 };
 
+/*
+const sendOrderEmailAgain = async (orderId: number) => {
+  try {
+    const response = await axios.post(`/api/order/${orderId}/mailConfirmationAgain`, {}, {
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${jwt.value}`,
+      }
+    });
+    console.log('Order state updated successfully:', response.data);
+  } catch (error) {
+    console.error('Error updating order state:', error);
+  }
+};
+*/
+
 
 onMounted(() => {
   getOrderItems();
@@ -123,7 +139,7 @@ const employeeMap = computed(() => {
 
 const stateCodes = {
     'Offen': 0,
-    'In Prüfung': 1,
+    'Teilweise Bestellt': 1,
     'Ist Bestellt': 2,
     'Abholbereit': 3,
     'Erledigt': 4,
@@ -131,7 +147,7 @@ const stateCodes = {
 };
 const stateCodesMap = ref({
   0: 'Offen',
-  1: 'In Prüfung',
+  1: 'Teilweise Bestellt',
   2: 'Ist Bestellt',
   3: 'Abholbereit',
   4: 'Erledigt',
@@ -148,7 +164,7 @@ const filteredOrders = computed(() => {
 const orderCounts = computed(() => {
     const counts = {
         'Offen': 0,
-        'In Prüfung': 0,
+        'Teilweise Bestellt': 0,
         'Ist Bestellt': 0,
         'Abholbereit': 0,
         'Erledigt': 0,
@@ -193,6 +209,26 @@ function onNoteInput(order) {
   debounceSave(order);
 }
 
+
+const downloadPDF = async (orderId) => {
+
+  try {
+    const response = await axios.get(`/api/order/${orderId}/pdf`, {
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${jwt.value}`
+      },
+      responseType: 'blob' // Important for handling binary data
+    });
+
+    // Create a URL for the blob and open it in a new tab
+    const fileURL = URL.createObjectURL(response.data);
+    window.open(fileURL, '_blank');
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 </script>
 
 
@@ -212,9 +248,9 @@ function onNoteInput(order) {
             <div v-if="showOpenOrders">
                 <div class="overflow-x-auto">
                     <div class="min-w-full bg-white mt-0 mb-0">
-                      <div class="grid grid-cols-2 sm:grid-cols-4 text-xs sm:text-sm md:text-base">
+                      <div class="grid grid-cols-2 sm:grid-cols-6 text-xs sm:text-sm md:text-base">
                           <!-- Tab items -->
-                          <div v-for="status in ['Offen', 'Ist Bestellt', 'Abholbereit', 'Storniert']" :key="status"
+                          <div v-for="status in ['Offen', 'Teilweise Bestellt', 'Ist Bestellt', 'Abholbereit', 'Erledigt', 'Storniert']" :key="status"
                             @click="updateTabSelection(status)"
                             class="px-2 py-1 text-center border border-gray-300 cursor-pointer"
                             :class="{'font-semibold bg-slate-300': isSelected(status), 'hover:bg-blue-300': !isSelected(status)}">
@@ -229,14 +265,23 @@ function onNoteInput(order) {
 
                     <div class="overflow-x-auto border border-gray-500 rounded-md bg-gray-200">
                       <div class="min-w-full">
-                          <div class="grid grid-cols-1 sm:grid-cols-2 text-xs sm:text-sm py-2 px-4">
+                          <div class="grid grid-cols-1 sm:grid-cols-3 text-xs sm:text-sm py-2 px-4">
+
+                              <div class="font-semibold"><button
+                                  class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                                  @click="downloadPDF(order.id)">
+                                  PDF - öffnen
+                                </button>
+                              </div>
                               <div class="font-semibold">Bestellung Nr &nbsp;&bull;&nbsp; [ {{ order.id }} ]<br/>{{ employeeMap[order.remoteId]?.firstname ?? 'Unknown' }} {{ employeeMap[order.remoteId]?.lastname ?? 'Employee' }} &nbsp;&bull;&nbsp; [ {{ order.remoteId }} ]</div>
                               <div class="font-semibold">Kosten &nbsp;&bull;&nbsp; {{ formatPoints(order.total_points) }} Punkte<br/>Status &nbsp;&bull;&nbsp; {{getStateCode(order.state)}} </div>
+
+                              <!--<button @click="sendOrderEmailAgain(order.id)" class="bg-slate-500 hover:bg-slate-700 text-white font-bold text-xs p-1 rounded">Bestätigungs Emails erneut senden</button>-->
                           </div>
                       </div>
 
                       <div class="w-full border-t border-t-gray-500 border-t-">
-                        <div class="grid grid-cols-2 sm:grid-cols-4 text-xs sm:text-sm md:text-base">
+                        <div class="grid grid-cols-2 sm:grid-cols-6 text-xs sm:text-sm md:text-base">
                           <div class="px-2 py-1 text-center border border-gray-300">
                             <button v-if="order.state != 0" @click="changeOrderState(order.id, 0)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold text-xs p-1 rounded">
                               Zurücksetzen
@@ -248,13 +293,12 @@ function onNoteInput(order) {
                               {{ employeeMap[order.remoteId]?.firstname ?? '' }} {{ employeeMap[order.remoteId]?.lastname ?? '' }}<br/>
                             </div>
                           </div>
-                          <!--
                           <div class="px-2 py-1 text-center border border-gray-300">
                             <button v-if="order.state != 1" @click="changeOrderState(order.id, 1)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold text-xs p-1 rounded">
-                              Prüfung starten
+                              Teilweise Bestellt
                             </button>
                             <div v-else class="font-bold text-red-600">
-                              In Prüfung
+                              Teilweise Bestellt
                             </div>
                             <div class="text-xs" v-if="order.state_1_datetime">
                               <strong>Geprüft am</strong><br/>
@@ -262,7 +306,7 @@ function onNoteInput(order) {
                               <strong>Geprüft von</strong><br/>
                               {{ employeeMap[order.state_1_user_id]?.firstname ?? '' }} {{ employeeMap[order.state_1_user_id]?.lastname ?? '' }}<br/>
                             </div>
-                          </div>-->
+                          </div>
                           <div class="px-2 py-1 text-center border border-gray-300">
                             <button v-if="order.state != 2" @click="changeOrderState(order.id, 2)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold text-xs p-1 rounded">
                               Bestellung durchgeführt
@@ -291,22 +335,22 @@ function onNoteInput(order) {
                               {{ employeeMap[order.state_3_user_id]?.firstname ?? '' }} {{ employeeMap[order.state_3_user_id]?.lastname ?? '' }}<br/>
                             </div>
                           </div>
-                          <!--
+                          
                           <div class="px-2 py-1 text-center border border-gray-300">
                             <button v-if="order.state != 4" @click="changeOrderState(order.id, 4)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold text-xs p-1 rounded">
-                              Bestellung abgeschlossen
+                              Bestellung erledigt
                             </button>
                             <div v-else class="font-bold text-red-600">
-                              Abgeschlossen
+                              Erledigt
                             </div>
                             <div class="text-xs" v-if="order.state_4_datetime">
-                              <strong>Abgeschlossen am</strong><br/>
+                              <strong>Erledigt am</strong><br/>
                               {{ order.state_4_datetime }}<br/>
-                              <strong>Abgeschlossen von</strong><br/>
+                              <strong>Erledigt von</strong><br/>
                               {{ employeeMap[order.state_4_user_id]?.firstname ?? '' }} {{ employeeMap[order.state_4_user_id]?.lastname ?? '' }}<br/>
                             </div>
                           </div>
-                          -->
+                          
                           <div class="px-2 py-1 text-center border border-gray-300">
                             <button v-if="order.state != 5" @click="changeOrderState(order.id, 5)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold text-xs p-1 rounded">
                               Bestellung stornieren
@@ -353,7 +397,7 @@ function onNoteInput(order) {
                               {{ item.article_number }}
                             </td>
                             <td>
-                              <span class="font-semibold" v-if="item.quantity > 1">{{ item.quantity }} x {{ item.name }}</span><span class="font-semibold">{{ item.name }}</span><br/>
+                              <span class="font-semibold" v-if="item.quantity > 1">{{ item.quantity }} x {{ item.name }}</span><span class="font-semibold" v-else>{{ item.name }}</span><br/>
                               <small class="text-gray-600">{{item.slogan}}</small>
                             </td>
                             <td class="text-sm text-gray-600">

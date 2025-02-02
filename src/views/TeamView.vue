@@ -48,11 +48,6 @@ const loading = ref(false);
                   <p class="font-semibold">Gerhard Beer</p>
                   <p class="text-xs">Gerhard.Beer@n.roteskreuz.at</p>
                 </div>
-                <div class="px-4 py-3 text-center text-sm">
-                  <img src="https://intern.rkhl.at/images/Kronberger.png" class="mx-auto h-auto max-h-[75px] mb-1"/>
-                  <p class="font-semibold">Christoph Kronberger</p>
-                  <p class="text-xs">Christoph.Kronberger@n.roteskreuz.at</p>
-                </div>
               </div>
             </div>
 

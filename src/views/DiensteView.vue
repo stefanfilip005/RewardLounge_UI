@@ -52,9 +52,10 @@ const toggleShowEmployeeSelection = async () => {
   showEmployeeSelection.value = !showEmployeeSelection.value;
 };*/
 
-const year = ref(2024);
+const currentYear = new Date().getFullYear();
+const year = ref(currentYear);
 const lowestYear = ref(2023);
-const highestYear = ref(2024);
+const highestYear = ref(currentYear);
 //const searchPersonalNumber = ref('');
 
 const shifts = ref<Shift[]>([]);
@@ -130,86 +131,85 @@ const getShifts = async () => {
     for (let i = 0; i < shifts.value.length; i++) {
       const currentItem = shifts.value[i];
 
-      if(currentItem.location == 38){
+      if(currentItem.location == 38 || currentItem.location == 3316){
         shiftsHollabrunn.value.push(currentItem);
-      }else if(currentItem.location == 39){
+      }else if(currentItem.location == 39 || currentItem.location == 82){
         shiftsHaugsdorf.value.push(currentItem);
       }
 
-
       const startTime = new Date(currentItem.start).getTime();
       const endTime = new Date(currentItem.end).getTime();
-      if (["FBB"].includes(currentItem.demandType)) {
+      if (["FBB", "FBKTW"].includes(currentItem.demandType)) {
         categoryCount.value['bktw']++;
         categoryMinutes.value['bktw'] += (endTime - startTime) / (1000 * 60);
         categoryPoints.value['bktw'] += parseInt((currentItem.overwrittenPoints !== null ? currentItem.overwrittenPoints : currentItem.points).toString(),10);
-        if(currentItem.location == 38){
+        if(currentItem.location == 38 || currentItem.location == 3316){
           //Hollabrunn
           categoryCountHollabrunn.value['bktw']++;
           categoryMinutesHollabrunn.value['bktw'] += (endTime - startTime) / (1000 * 60);
           categoryPointsHollabrunn.value['bktw'] += parseInt((currentItem.overwrittenPoints !== null ? currentItem.overwrittenPoints : currentItem.points).toString(),10);
-        }else if(currentItem.location == 39){
+        }else if(currentItem.location == 39 || currentItem.location == 82){
           //Haugsdorf
           categoryCountHaugsdorf.value['bktw']++;
           categoryMinutesHaugsdorf.value['bktw'] += (endTime - startTime) / (1000 * 60);
           categoryPointsHaugsdorf.value['bktw'] += parseInt((currentItem.overwrittenPoints !== null ? currentItem.overwrittenPoints : currentItem.points).toString(),10);
         }
 
-      }else if (["FNB_NEF", "NEFAZUBI"].includes(currentItem.demandType)) {
+      }else if (["FNB_NEF", "NEFAZUBI", "ANA", "PNEF", "PLNEF", "FNEF", "NFS", "PNAW", "FNAW", "FSNAW", "LSRTW"].includes(currentItem.demandType)) {
         categoryCount.value['nef']++;
         categoryMinutes.value['nef'] += (endTime - startTime) / (1000 * 60);
         categoryPoints.value['nef'] += parseInt((currentItem.overwrittenPoints !== null ? currentItem.overwrittenPoints : currentItem.points).toString(),10);
-        if(currentItem.location == 38){
+        if(currentItem.location == 38 || currentItem.location == 3316){
           //Hollabrunn
           categoryCountHollabrunn.value['nef']++;
           categoryMinutesHollabrunn.value['nef'] += (endTime - startTime) / (1000 * 60);
           categoryPointsHollabrunn.value['nef'] += parseInt((currentItem.overwrittenPoints !== null ? currentItem.overwrittenPoints : currentItem.points).toString(),10);
-        }else if(currentItem.location == 39){
+        }else if(currentItem.location == 39 || currentItem.location == 82){
           //Haugsdorf
           categoryCountHaugsdorf.value['nef']++;
           categoryMinutesHaugsdorf.value['nef'] += (endTime - startTime) / (1000 * 60);
           categoryPointsHaugsdorf.value['nef'] += parseInt((currentItem.overwrittenPoints !== null ? currentItem.overwrittenPoints : currentItem.points).toString(),10);
         }
-      }else if (["FRB", "FRC", "SR1", "SR2"].includes(currentItem.demandType)) {
+      }else if (["FRB", "FRC", "SR1", "SR2", "FRTW", "FRTWC", "LRTWC", "PRS", "PNFS"].includes(currentItem.demandType)) {
         categoryCount.value['rtw']++;
         categoryMinutes.value['rtw'] += (endTime - startTime) / (1000 * 60);
         categoryPoints.value['rtw'] += parseInt((currentItem.overwrittenPoints !== null ? currentItem.overwrittenPoints : currentItem.points).toString(),10);
-        if(currentItem.location == 38){
+        if(currentItem.location == 38 || currentItem.location == 3316){
           //Hollabrunn
           categoryCountHollabrunn.value['rtw']++;
           categoryMinutesHollabrunn.value['rtw'] += (endTime - startTime) / (1000 * 60);
           categoryPointsHollabrunn.value['rtw'] += parseInt((currentItem.overwrittenPoints !== null ? currentItem.overwrittenPoints : currentItem.points).toString(),10);
-        }else if(currentItem.location == 39){
+        }else if(currentItem.location == 39 || currentItem.location == 82){
           //Haugsdorf
           categoryCountHaugsdorf.value['rtw']++;
           categoryMinutesHaugsdorf.value['rtw'] += (endTime - startTime) / (1000 * 60);
           categoryPointsHaugsdorf.value['rtw'] += parseInt((currentItem.overwrittenPoints !== null ? currentItem.overwrittenPoints : currentItem.points).toString(),10);
         }
-      }else if (["FKB", "FKB-B", "FKC", "SK1", "SK2"].includes(currentItem.demandType)) {
+      }else if (["FKB", "FKB-B", "FKC", "SK1", "SK2", "FKTW", "PKTW", "FKTWB", "BKTWB"].includes(currentItem.demandType)) {
         categoryCount.value['ktw']++;
         categoryMinutes.value['ktw'] += (endTime - startTime) / (1000 * 60);
         categoryPoints.value['ktw'] += parseInt((currentItem.overwrittenPoints !== null ? currentItem.overwrittenPoints : currentItem.points).toString(),10);
-        if(currentItem.location == 38){
+        if(currentItem.location == 38 || currentItem.location == 3316){
           //Hollabrunn
           categoryCountHollabrunn.value['ktw']++;
           categoryMinutesHollabrunn.value['ktw'] += (endTime - startTime) / (1000 * 60);
           categoryPointsHollabrunn.value['ktw'] += parseInt((currentItem.overwrittenPoints !== null ? currentItem.overwrittenPoints : currentItem.points).toString(),10);
-        }else if(currentItem.location == 39){
+        }else if(currentItem.location == 39 || currentItem.location == 82){
           //Haugsdorf
           categoryCountHaugsdorf.value['ktw']++;
           categoryMinutesHaugsdorf.value['ktw'] += (endTime - startTime) / (1000 * 60);
           categoryPointsHaugsdorf.value['ktw'] += parseInt((currentItem.overwrittenPoints !== null ? currentItem.overwrittenPoints : currentItem.points).toString(),10);
         }
-      }else if (["DF1", "DF2"].includes(currentItem.demandType)) {
+      }else if (["DF1", "DF2", "DF", "RUFDF"].includes(currentItem.demandType)) {
         categoryCount.value['df']++;
         categoryMinutes.value['df'] += (endTime - startTime) / (1000 * 60);
         categoryPoints.value['df'] += parseInt((currentItem.overwrittenPoints !== null ? currentItem.overwrittenPoints : currentItem.points).toString(),10);
-        if(currentItem.location == 38){
+        if(currentItem.location == 38 || currentItem.location == 3316){
           //Hollabrunn
           categoryCountHollabrunn.value['df']++;
           categoryMinutesHollabrunn.value['df'] += (endTime - startTime) / (1000 * 60);
           categoryPointsHollabrunn.value['df'] += parseInt((currentItem.overwrittenPoints !== null ? currentItem.overwrittenPoints : currentItem.points).toString(),10);
-        }else if(currentItem.location == 39){
+        }else if(currentItem.location == 39 || currentItem.location == 82){
           //Haugsdorf
           categoryCountHaugsdorf.value['df']++;
           categoryMinutesHaugsdorf.value['df'] += (endTime - startTime) / (1000 * 60);
@@ -219,12 +219,12 @@ const getShifts = async () => {
         categoryCount.value['misc']++;
         categoryMinutes.value['misc'] += (endTime - startTime) / (1000 * 60);
         categoryPoints.value['misc'] += parseInt((currentItem.overwrittenPoints !== null ? currentItem.overwrittenPoints : currentItem.points).toString(),10);
-        if(currentItem.location == 38){
+        if(currentItem.location == 38 || currentItem.location == 3316){
           //Hollabrunn
           categoryCountHollabrunn.value['misc']++;
           categoryMinutesHollabrunn.value['misc'] += (endTime - startTime) / (1000 * 60);
           categoryPointsHollabrunn.value['misc'] += parseInt((currentItem.overwrittenPoints !== null ? currentItem.overwrittenPoints : currentItem.points).toString(),10);
-        }else if(currentItem.location == 39){
+        }else if(currentItem.location == 39 || currentItem.location == 82){
           //Haugsdorf
           categoryCountHaugsdorf.value['misc']++;
           categoryMinutesHaugsdorf.value['misc'] += (endTime - startTime) / (1000 * 60);
@@ -322,10 +322,10 @@ const filteredShifts = computed(() => {
           <div class="font-bold text-base md:text-xl mb-4 border-b border-b-gray-400 pb-1 flex justify-between items-center">
             Regelwerk der Punkteverteilung
             <div v-if="showPunkte" @click="toggleShowPunkte()" class="cursor-pointer pr-2">
-                <i class="fas fa-chevron-down"></i>
+                <i class="fas fa-chevron-up"></i>
             </div>
             <div v-if="!showPunkte" @click="toggleShowPunkte()" class="cursor-pointer pr-2">
-                <i class="fas fa-chevron-up"></i>
+                <i class="fas fa-chevron-down"></i>
             </div>
           </div>
 

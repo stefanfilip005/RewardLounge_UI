@@ -340,9 +340,9 @@ onMounted(() => {
 
                 <div v-if="(parseInt(user.points) - totalPrice) < 0" class="pt-4 text-center">
                   <div class="mb-2 font-bold">Du brauchst mehr Punkte?</div>                 
-                  <a href="https://portal.n.roteskreuz.at/index.php?modul=rps&seite=dienstplan" target="_blank" 
+                  <a href="https://dienstplan.n.roteskreuz.at/" target="_blank" 
                     class="mt-2 py-1 px-3 bg-gray-300 border rounded-lg border-gray-400 transition duration-300 ease-in-out hover:text-white hover:bg-gray-500 cursor-pointer" >
-                    Hier geht es zum RPS
+                    Hier geht es zum Dienstplan
                   </a>
                 </div>
 

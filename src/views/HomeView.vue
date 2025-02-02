@@ -3,6 +3,27 @@ import { onMounted, ref, computed } from 'vue';
 import { useStore } from 'vuex';
 import axios from 'axios';
 
+interface RawShift {
+  Datum: string
+  Beginn: string
+  Ende: string
+  Ort: string
+  'Typ id': string
+  Fahrzeug: string
+  Kollegen: string
+}
+// Interface für das Format, das wir in der Tabelle anzeigen wollen
+interface ShiftDisplay {
+  date: string
+  from: string
+  to: string
+  location: string
+  resourceKey: string
+  kfz: string
+  colleagues: string[]
+}
+
+
 interface Shift {
     employeeId: string; // or number, depending on your data
     start: string; // Assuming it's a string, adjust if it's a Date
@@ -21,38 +42,43 @@ interface Ranking {
     location: number | null;
 }
 
-interface Resource {
-  typ: string;
-  mnr: string;
-  data: string;
-  // other properties...
-}
-interface FutureShift {
+interface Course {
+  id: number;
+  name: string;
+  info?: string;
   date: string;
-  from: string;
-  to: string;
-  resources: { [key: string]: Resource };
-  // other properties...
+  sortableDate: string;  // Additional property for sorting
+  start_time: string;
+  end_time: string;
+  registered: boolean; // default null or false, needs to be set to true if user is registered
 }
-
 
 const loadingGreeting = ref("loading");
 
 
 const store = useStore();
+const isPrivileged = computed(() => {
+    const user = store.state.user; // Directly accessing user from the state
+    if (!user) return false; // Check if user is null
+    return user.isAdministrator || user.isModerator || user.isDeveloper;
+});
 
 const jwt = computed(() => store.state.jwt);
 const user = computed(() => store.state.user);
 
-const loading = ref(false);
-const year = ref(2024);
-const lowestYear = ref(2023);
-const highestYear = ref(2024);
+//const loading = ref(false);
+//const year = ref(2024);
+//const lowestYear = ref(2023);
+//const highestYear = ref(2024);
 
 const greeting = ref("");
 const shifts = ref<Shift[]>([]);
+const courses = ref<Course[]>([]);
+const myCourses = ref<any[]>([]);
+const mergedCourses = ref<Course[]>([]); 
 const rankings = ref<Ranking[]>([]);
-const selfShifts = ref<FutureShift[]>([]);
+const selfShifts = ref<RawShift[]>([])
+const statistics = ref<PointsRow[]>([]);
 
 const showCategoryLocation = ref('combined');
 
@@ -74,12 +100,12 @@ const resetMonthFiles = () => {
         '12': null,
     };
 };
-
+/*
 const monthNames = [
     'Jänner', 'Februar', 'März', 'April', 'Mai', 'Juni',
     'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'
-];
-const fileLinks = ref({}); // Object to store the links
+];*/
+//const fileLinks = ref({}); // Object to store the links
 const getGreeting = async () => {
   loadingGreeting.value = "loading";
   greeting.value = "";
@@ -120,6 +146,95 @@ const getShifts = async () => {
   }
 };
 
+const getCourses = async () => {
+  try {
+    const response = await axios.get('../api/self/courses', {
+      headers: {
+        Accepts: "application:json",
+        Authorization: `Bearer ${jwt.value}`
+      }
+    });
+    courses.value = response.data.data;
+    getMyCourses();
+  } catch (error) {
+    console.error(error);
+  }
+};
+const getMyCourses = async () => {
+  try {
+    const response = await axios.get('../api/self/mycourses', {
+      headers: {
+        Accepts: "application/json",
+        Authorization: `Bearer ${jwt.value}`
+      }
+    });
+    // Check if 'status' key is present and indicates 'NODATA'
+    if (response.data.status && response.data.status === "NODATA") {
+      myCourses.value = []; // Handle cases where no data is available
+    } else {
+      // Map and format the date only if data is present
+      myCourses.value = response.data.data.map(course => ({
+        ...course,
+        DATE: formatDateCourse(course.DATE)  // Continue to format date
+      }));
+    }
+    mergeCourses();  // Continue to merge courses after setting myCourses
+  } catch (error) {
+    console.error(error);
+    myCourses.value = []; // Reset on error to avoid inconsistencies
+    mergeCourses();  // Ensure mergeCourses is called even if an error occurs
+  }
+};
+const convertDate = (date: string) => {
+  const parts = date.split('.');
+  return `${parts[2]}${parts[1]}${parts[0]}`; // Concatenate as YYYYMMDD
+};
+const mergeCourses = () => {
+  const courseMap = new Map();
+
+  // Add all courses and convert id to string to ensure consistency
+  courses.value.forEach(course => {
+    const courseId = String(course.id);
+    courseMap.set(courseId, { ...course, 
+      sortableDate: convertDate(course.date), registered: false });
+  });
+
+  // Set 'registered' status for myCourses and ensure ID consistency
+  myCourses.value.forEach(course => {
+    const courseId = String(course.ID);
+    if (courseMap.has(courseId)) {
+      const existingCourse = courseMap.get(courseId);
+      courseMap.set(courseId, { ...existingCourse, registered: true });
+    } else {
+      courseMap.set(courseId, {
+        id: courseId,
+        name: course.NAME,
+        info: course.INFO || '',
+        date: course.DATE,
+        sortableDate: convertDate(course.DATE),
+        start_time: course.VON,
+        end_time: course.BIS,
+        registered: true
+      });
+    }
+  });
+
+  // Update mergedCourses reactive reference
+  const sortedCourses = Array.from(courseMap.values()).sort((a, b) => {
+    // Compare by sortable date first
+    if (a.sortableDate < b.sortableDate) return -1;
+    if (a.sortableDate > b.sortableDate) return 1;
+    // If sortable dates are the same, compare by start time
+    if (a.start_time < b.start_time) return -1;
+    if (a.start_time > b.start_time) return 1;
+    return 0;
+  });
+
+  // Update mergedCourses reactive reference
+  mergedCourses.value = sortedCourses;
+};
+
+/*
 const getInfoblaetter = async () => {
     try {
         const response = await axios.get(`../api/infoblaetter/${year.value}`, {
@@ -133,7 +248,7 @@ const getInfoblaetter = async () => {
     } catch (error) {
         console.error(error);
     }
-};
+};*/
 
 const getRanking = async () => {
   rankings.value = [];
@@ -149,6 +264,20 @@ const getRanking = async () => {
     console.error(error);
   }
 };
+const getPointStatistic = async () => {
+  statistics.value = [];
+  try {
+    const response = await axios.get('../api/pointStatistic', {
+      headers: {
+        Accepts: "application:json",
+        Authorization: `Bearer ${jwt.value}`
+      }
+    });
+    statistics.value = response.data;
+  } catch (error) {
+    console.error(error);
+  }
+};
 
 const getFutureShifts = async () => {
   selfShifts.value = [];
@@ -159,7 +288,7 @@ const getFutureShifts = async () => {
         Authorization: `Bearer ${jwt.value}`
       }
     });
-    selfShifts.value = response.data.data;
+    selfShifts.value = response.data;
   } catch (error) {
     console.error(error);
   }
@@ -176,68 +305,22 @@ const filteredRankings = computed(() => {
     return rankings.value;
 });
 
-
-const shiftsIncludingSelf = computed(() => {
-  const shifts = Object.values(selfShifts.value || {});
-  return shifts
-    .filter(shift => isSelfInShift(shift.resources))
-    .map(shift => {
-      const resourceKey = getResourceKey(shift.resources, user.value.remoteId);
-      return {
-        date: shift.date,
-        from: shift.from,
-        to: shift.to,
-        kfz: getKfzResource(shift.resources),
-        colleagues: getColleagueNames(shift.resources),
-        resourceKey: resourceKey // This is the new part
-      };
-    })
-    .sort((a, b) => {
-      // Compare by date first
-      const dateA = new Date(a.date).getTime();
-      const dateB = new Date(b.date).getTime();
-
-      if (dateA !== dateB) {
-        return dateA - dateB; // Sort dates in ascending order
-      }
-
-      // If dates are equal, compare by 'from' time
-      const fromTimeA = a.from;
-      const fromTimeB = b.from;
-
-      return fromTimeA.localeCompare(fromTimeB); // Sort 'from' times in ascending order
-    });
-});
-
-// Check if the user is part of the shift
-const isSelfInShift = (resources: { [key: string]: Resource }) => {
-  return Object.values(resources).some(resource => resource.typ === 'MA' && resource.mnr === user.value.remoteId);
-};
-
-// Extract KFZ resource data
-const getKfzResource = (resources: { [key: string]: Resource }) => {
-  const kfzResource = Object.values(resources).find(resource => resource.typ === 'KFZ');
-  return kfzResource ? kfzResource.data : '';
-};
-
-// Function to get the key of the resource matching the given ID
-const getResourceKey = (resources: { [key: string]: Resource }, id) => {
-  for (const [key, resource] of Object.entries(resources)) {
-    if (resource.typ === 'MA' && resource.mnr === id) {
-      return key;
+const formattedShifts = computed<ShiftDisplay[]>(() => {
+  return selfShifts.value.map((shift) => {
+    return {
+      date: shift.Datum,
+      from: shift.Beginn,
+      to: shift.Ende,
+      location: shift.Ort,
+      resourceKey: shift['Typ id'],
+      kfz: shift.Fahrzeug,
+      // Kollegen als Array trennen (Kommas), falls vorhanden
+      colleagues: shift.Kollegen
+        ? shift.Kollegen.split(',').map((kollege) => kollege.trim())
+        : [],
     }
-  }
-  return 'N/A';
-};
-
-const getColleagueNames = (resources: { [key: string]: Resource }) => {
-  return Object.values(resources)
-    .filter(resource => resource.typ === 'MA' && resource.mnr !== user.value.remoteId)
-    .map(resource => {
-      // Remove content within parentheses and trim whitespaces
-      return resource.data.replace(/\(.*?\)/, '').trim();
-    });
-};
+  })
+})
 
 onMounted(() => {
   resetMonthFiles();
@@ -245,13 +328,23 @@ onMounted(() => {
   getShifts();
   getRanking();
   getFutureShifts();
-  getInfoblaetter();
+  //getInfoblaetter();
+
+  getCourses();
+  if(isPrivileged.value) {
+    getPointStatistic();
+  }
+
 });
 
 
 const formatDate = (datetime) => {
   const date = new Date(datetime);
   return date.toLocaleDateString();
+};
+const formatDateCourse = (dateStr) => {
+  const date = new Date(dateStr);
+  return `${date.getDate().toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')}.${date.getFullYear()}`;
 };
 
 const formatTime = (datetime) => {
@@ -262,7 +355,9 @@ const formatTime = (datetime) => {
 const getLocationName = (locationId) => {
   switch(locationId) {
     case 39: return 'Haugsdorf';
+    case 82: return 'Haugsdorf';
     case 38: return 'Hollabrunn';
+    case 3316: return 'Hollabrunn';
     default: return locationId;
   }
 };
@@ -272,9 +367,52 @@ const formatPoints = (points) => {
   return Number.isInteger(numericPoints) ? numericPoints.toString() : points;
 };
 
+
+// Computed property for total collected points
+const totalCollectedPoints = computed(() => {
+  let total = 0;
+  for (const key in statistics.value) {
+    const entry = statistics.value[key];
+    total += parseFloat(entry.collectedPoints);
+  }
+  return total;
+});
+
+const totalUsedPoints = computed(() => {
+  let total = 0;
+  for (const key in statistics.value) {
+    const entry = statistics.value[key];
+    total += parseFloat(entry.usedPoints);
+  }
+  return total;
+});
+const totalUsedPointsWithArticle = computed(() => {
+  let total = 0;
+  for (const key in statistics.value) {
+    const entry = statistics.value[key];
+    total += parseFloat(entry.usedPointsWithArticle);
+  }
+  return total;
+});
+
+// Helper function to format points as a string with fixed decimal places
+function formatPointsToFixed(points: string | number): string {
+  const numericPoints = typeof points === 'string' ? parseFloat(points)/100 : points/100;
+  return new Intl.NumberFormat('de-DE', { maximumFractionDigits: 0, useGrouping: true }).format(numericPoints);
+}
+interface PointsRow {
+  year: number;
+  collectedPoints: string;
+  usedPoints: string;
+  usedPointsWithArticle: string;
+}
+
+
+
+/*
 async function changeYear(direction) {
   if ((direction === -1 && year.value > lowestYear.value) || (direction === 1 && year.value < highestYear.value)) {
-    year.value += direction;
+    y1ear.value += direction;
     //loading.value = true;
     getInfoblaetter();
   }
@@ -290,8 +428,9 @@ const computedMonths = computed(() => {
     };
   });
 });
+*/
 
-
+/*
 const parseResponseData = (responseData) => {
   if (responseData.data.length > 0) {
     const yearData = responseData.data[0];
@@ -302,7 +441,8 @@ const parseResponseData = (responseData) => {
   } else {
     fileLinks.value = {}; // Reset if no data
   }
-};
+};*/
+/*
 async function downloadFile(monthIndex) {
   const monthKey = ('0' + monthIndex.monthNumber).slice(-2);
   const fileLink = fileLinks.value[monthKey];
@@ -326,6 +466,8 @@ async function downloadFile(monthIndex) {
     console.error('Error downloading file:', error);
   }
 };
+*/
+
 
 </script>
 
@@ -383,6 +525,9 @@ async function downloadFile(monthIndex) {
 
 
 
+  
+
+<!--
     <div class="flex justify-center mb-6">
       <div class="w-full max-w-2xl bg-white rounded-lg shadow-md overflow-hidden md:max-w-3xl lg:max-w-5xl xl:max-w-5xl mx-2">
         <div class="px-6 py-4">
@@ -420,6 +565,48 @@ async function downloadFile(monthIndex) {
         </div>
       </div>
     </div>
+  -->
+
+
+
+  <div class="flex justify-center mb-6" v-if="isPrivileged">
+    <div class="w-full max-w-2xl bg-white rounded-lg shadow-md overflow-hidden md:max-w-3xl lg:max-w-5xl xl:max-w-5xl mx-2">
+      <div class="px-6 py-4">
+        <div class="flex justify-between items-center font-bold text-base md:text-xl mb-2 border-b border-b-gray-400 pb-1">
+          <div>Punkte Übersicht</div>
+          <div class="text-sm text-gray-400 pt-1.5">Noch verfügbare Punkte: {{ formatPointsToFixed(totalCollectedPoints - totalUsedPoints) }} &euro;</div>
+        </div>
+      
+
+        <div class="overflow-x-auto">
+          <table class="min-w-full table-auto bg-white text-xs sm:text-sm md:text-base">
+            <thead>
+              <tr class="bg-red-800 text-white">
+                <th class="px-2 py-1 text-center">Jahr</th>
+                <th class="px-2 py-1 text-center">Gesammelte Punkte</th>
+                <th class="px-2 py-1 text-center">Ausgegebene Punkte <span class="text-xs">(davon im RK Shop)</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(row, index) in statistics" :key="row.year" :class="{'bg-gray-200': index % 2 === 0, 'hover:bg-blue-300': true}">
+                <td class="px-2 py-1 text-center">{{ row.year }}</td>
+                <td class="px-2 py-1 text-center">{{ formatPointsToFixed(row.collectedPoints) }} &euro;</td>
+                <td class="px-2 py-1 text-center">{{ formatPointsToFixed(row.usedPoints) }} &euro; <span class="text-gray-400">({{ formatPointsToFixed(row.usedPointsWithArticle) }} &euro;)</span></td>
+              </tr>
+        
+              <tr class="bg-gray-300 hover:bg-blue-400">
+                <td class="px-2 py-1 text-center font-bold">Gesamt</td>
+                <td class="px-2 py-1 text-center font-bold">{{ formatPointsToFixed(totalCollectedPoints) }} &euro;</td>
+                <td class="px-2 py-1 text-center font-bold">{{ formatPointsToFixed(totalUsedPoints) }} &euro; <span class="text-gray-400">({{ formatPointsToFixed(totalUsedPointsWithArticle) }} &euro;)</span></td>
+              </tr>
+            </tbody>
+          </table>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
 
 
     <div class="flex justify-center mb-6">
@@ -453,7 +640,7 @@ async function downloadFile(monthIndex) {
 
             <div class="flex items-center justify-center mb-2 py-1 space-x-2 text-sm sm:text-base">
 
-              <a href="https://portal.n.roteskreuz.at/index.php?modul=rps&seite=dienstplan" target="_blank" class="py-1 px-3 bg-gray-300 border rounded-lg border-gray-400 transition duration-300 ease-in-out hover:text-white hover:bg-gray-500 cursor-pointer" >
+              <a href="https://dienstplan.n.roteskreuz.at/" target="_blank" class="py-1 px-3 bg-gray-300 border rounded-lg border-gray-400 transition duration-300 ease-in-out hover:text-white hover:bg-gray-500 cursor-pointer" >
                 Hol dir gleich hier mehr Punkte
               </a>
             </div>
@@ -490,40 +677,104 @@ async function downloadFile(monthIndex) {
     </div>
 
     
-    <div class="flex justify-center mb-6">
-      <div class="w-full max-w-2xl bg-white rounded-lg shadow-md overflow-hidden md:max-w-3xl lg:max-w-5xl xl:max-w-5xl mx-2">
-        <div class="px-6 py-4">
-          <div class="font-bold text-base md:text-xl mb-2 border-b border-b-gray-400 pb-1">Deine zukünftigen Dienste</div>
-          <div class="overflow-x-auto">
-            <table class="min-w-full table-auto bg-white text-xs sm:text-sm md:text-base">
-              <thead>
-                <tr class="bg-red-800 text-white">
-                  <th class="px-2 py-1 text-left">Datum</th>
-                  <th class="px-2 py-1 text-left">Beginn</th>
-                  <th class="px-2 py-1 text-left">Ende</th>
-                  <th class="px-2 py-1 text-left">Klasse</th>
-                  <th class="px-2 py-1 text-left">Fahrzeug</th>
-                  <th class="px-2 py-1 text-left">Kollegen</th>
-                </tr>
-              </thead>
-              <tbody v-if="shiftsIncludingSelf && shiftsIncludingSelf.length > 0">
-                <tr v-for="(shift, index) in shiftsIncludingSelf" :key="shift.date" :class="{'bg-gray-200': index % 2 === 0, 'hover:bg-blue-300': true}">
-                  <td class="px-2 py-1">{{ shift.date }}</td>
-                  <td class="px-2 py-1">{{ shift.from }}</td>
-                  <td class="px-2 py-1">{{ shift.to }}</td>
-                  <td class="px-2 py-1">{{ shift.resourceKey }}</td>
-                  <td class="px-2 py-1">{{ shift.kfz }}</td>
-                  <td class="px-2 py-1">{{ shift.colleagues.join(', ') }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+  <div class="flex justify-center mb-6">
+    <div class="w-full max-w-2xl bg-white rounded-lg shadow-md overflow-hidden md:max-w-3xl lg:max-w-5xl xl:max-w-5xl mx-2">
+      <div class="px-6 py-4">
+        <div class="font-bold text-base md:text-xl mb-2 border-b border-b-gray-400 pb-1">
+          Deine zukünftigen Dienste
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="min-w-full table-auto bg-white text-xs sm:text-sm md:text-base">
+            <thead>
+              <tr class="bg-red-800 text-white">
+                <th class="px-2 py-1 text-left">Datum</th>
+                <th class="px-2 py-1 text-left">Beginn</th>
+                <th class="px-2 py-1 text-left">Ende</th>
+                <th class="px-2 py-1 text-left">Ort</th>
+                <th class="px-2 py-1 text-left">Typ</th>
+                <th class="px-2 py-1 text-left">Fahrzeug</th>
+                <th class="px-2 py-1 text-left">Kollegen</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Nur anzeigen, wenn es tatsächlich Daten gibt -->
+              <tr
+                v-for="(shift, index) in formattedShifts"
+                :key="index"
+                :class="{
+                  'bg-gray-200': index % 2 === 0,
+                  'hover:bg-blue-300': true
+                }"
+              >
+                <td class="px-2 py-1">{{ shift.date }}</td>
+                <td class="px-2 py-1">{{ shift.from }}</td>
+                <td class="px-2 py-1">{{ shift.to }}</td>
+                <td class="px-2 py-1">{{ shift.location }}</td>
+                <td class="px-2 py-1">{{ shift.resourceKey }}</td>
+                <td class="px-2 py-1">{{ shift.kfz }}</td>
+                <td class="px-2 py-1">
+                  <!-- Kollegen sind hier ein Array, daher join mit Komma -->
+                  {{ shift.colleagues.join(', ') }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
+  </div>
 
     
     
+  <div class="flex justify-center mb-6">
+    <div class="w-full max-w-2xl bg-white rounded-lg shadow-md overflow-hidden md:max-w-3xl lg:max-w-5xl xl:max-w-5xl mx-2">
+      <div class="px-6 py-4">
+        <div class="flex mb-2 border-b border-b-gray-400 pb-1 justify-between">
+          <div class="font-bold text-base md:text-xl">Zukünftige Kurse</div>  
+          
+          <div class="flex items-center justify-center mb-1 py-0 space-x-2 text-sm sm:text-base">
+
+            <a href="https://portal.n.roteskreuz.at/index.php?ebene=A&stichwort=&kategorie=0&zeitraum=0&bezirksstelle=03070&modul=kursverwaltung&seite=fortbildungen&suche=1" target="_blank" 
+            class="text-sm py-1 px-2 bg-gray-300 border rounded-lg border-gray-400 transition duration-300 ease-in-out hover:text-white hover:bg-gray-500 cursor-pointer" >
+              Zu den Kursen im MIP
+            </a>
+          </div>  
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="min-w-full table-auto bg-white text-xs sm:text-sm md:text-base">
+            <thead>
+              <tr class="bg-red-800 text-white">
+                <th class="px-2 py-1 text-center">Ang.</th>
+                <th class="px-2 py-1 text-left">Bezeichnung</th>
+                <th class="px-2 py-1 text-center">Datum</th>
+                <th class="px-2 py-1 text-center">Uhrzeit</th>
+                <th class="px-2 py-1 text-center">Kurs ID</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(course, index) in mergedCourses" :key="course.id" :class="{'bg-gray-200': index % 2 === 0, 'hover:bg-blue-300': true}">
+                <td class="px-2 py-1 text-center">
+                  <i v-if="course.registered"
+                      :key="`registered-${course.id}`"
+                      class="fa fa-check-circle text-green-600"></i>
+                  <i v-else
+                      :key="`not-registered-${course.id}`"
+                      class="fa fa-times text-gray-500"></i>
+                </td>
+                <td class="px-2 py-1 text-left">{{ course.name }}<br/><span class="text-xs text-gray-500">{{ course.info }}</span></td>
+                <td class="px-2 py-1 text-center">{{ course.date }}</td>
+                <td class="px-2 py-1 text-center">{{ course.start_time }} - {{ course.end_time }}</td>
+                <td class="px-2 py-1 text-center text-gray-400">{{ course.id }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+        </div>
+      </div>
+    </div>
+  </div>
 
 
     <div class="flex justify-center mb-10">

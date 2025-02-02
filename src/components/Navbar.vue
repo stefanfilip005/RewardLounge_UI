@@ -16,6 +16,11 @@ const showEmployeeLink = computed(() => {
     if (!user) return false; // Check if user is null
     return user.isAdministrator || user.isModerator || user.isDeveloper;
 });
+const showToolsLink = computed(() => {
+    const user = store.state.user; // Directly accessing user from the state
+    if (!user) return false; // Check if user is null
+    return user.isAdministrator || user.isModerator || user.isDeveloper || user.isDienstfuehrer;
+});
 
 function logout() {
     console.log("logout");
@@ -58,17 +63,23 @@ defineExpose({ fetchCartCount });
                     </div>
             
                     <!-- Primary Navbar items -->
-                    <div class="hidden md:flex items-center space-x-1"> | 
+                    <div class="hidden lg:flex items-center space-x-1"> | 
+                        <!-- <a href="./news" class="py-3 px-3 text-white hover:text-white">News</a> | -->
                         <a href="./dienste" class="py-3 px-3 text-white hover:text-white">Dienste</a> | 
                         <a href="./produkte" class="py-3 px-3 text-white hover:text-white">Produkte</a> |
                         <a href="./bestellungen" class="py-3 px-3 text-white hover:text-white">Bestellungen</a> | 
-                        <a href="./mitarbeiter" class="py-3 px-3 text-white hover:text-white">Mitarbeiter</a><span v-if="showEmployeeLink"> | </span> 
+                        <a href="./mitarbeiter" class="py-3 px-3 text-white hover:text-white">Mitarbeiter</a><span v-if="showToolsLink"> | </span> 
+
+
+
+                        <span v-if="showToolsLink"><a href="./tools" class="py-3 px-3 text-white hover:text-white">Tools</a><span v-if="showEmployeeLink"> | </span> </span>
+
                         <span v-if="showEmployeeLink"><a href="./administration" class="py-3 px-3 text-white hover:text-white"><i class="fa-solid fa-user-shield"></i></a> </span>
                     </div>
                 </div>
         
                 <!-- Secondary Navbar items -->
-                <div class="hidden md:flex items-center space-x-3 relative">
+                <div class="hidden lg:flex items-center space-x-3 relative">
                     <a href="./cart" class="flex items-center py-3 px-3 text-white hover:text-white relative">
                         <i class="fa-solid fa-cart-shopping relative"></i>
                         <span class=" bg-red-800 border border-white font-semibold text-gray-200 text-xs rounded-full px-1.5 ml-1 absolute shadow-lg ring-2 ring-red-800" style="transform: translate(50%, -50%);"> {{ cartCount }} </span>
@@ -79,7 +90,7 @@ defineExpose({ fetchCartCount });
                 </div>
         
                 <!-- Mobile menu button -->
-                <div class="md:hidden flex items-center">
+                <div class="lg:hidden flex items-center">
                 <button @click="isMenuOpen = !isMenuOpen" class="mobile-menu-button">
                     <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -90,11 +101,13 @@ defineExpose({ fetchCartCount });
         </div>
     
         <!-- Mobile menu -->
-        <div class="md:hidden py-2" v-show="isMenuOpen">
+        <div class="lg:hidden py-2" v-show="isMenuOpen">
+            <!-- <a href="./news" class="block py-2 px-4 text-sm text-white hover:text-white"><i class="fa-solid fa-newspaper"></i> &nbsp;News</a> -->
             <a href="./dienste" class="block py-2 px-4 text-sm text-white hover:text-white"><i class="fa-solid fa-truck-medical"></i> &nbsp;Dienste</a>
             <a href="./produkte" class="block py-2 px-4 text-sm text-white hover:text-white"><i class="fa-solid fa-store"></i> &nbsp;Produkte</a>
-            <a href="./mitarbeiter" class="block py-2 px-4 text-sm text-white hover:text-white"><i class="fa-solid fa-users"></i> &nbsp;Mitarbeiter</a>
             <a href="./bestellungen" class="block py-2 px-4 text-sm text-white hover:text-white"><i class="fa-solid fa-bags-shopping"></i> &nbsp;Bestellungen</a>
+            <a href="./mitarbeiter" class="block py-2 px-4 text-sm text-white hover:text-white"><i class="fa-solid fa-users"></i> &nbsp;Mitarbeiter</a>
+            <a href="./tools" v-if="showToolsLink" class="block py-2 px-4 text-sm text-white hover:text-white"><i class="fa-solid fa-wrench"></i> &nbsp;Tools</a>
             <a href="./administration" v-if="showEmployeeLink" class="block py-2 px-4 text-sm text-white hover:text-white"><i class="fa-solid fa-user-shield"></i> &nbsp;Administration</a>
             <a href="./cart" class="py-2 px-4 text-sm text-white hover:text-white block items-center"><i class="fa-solid fa-cart-shopping"></i> &nbsp;Warenkorb
                 <span class=" bg-red-800 border border-white font-semibold text-gray-200 text-xs rounded-full px-1.5 ml-1 mr-0.5 shadow-lg ring-2 ring-red-800"> {{ cartCount }} </span> 

@@ -69,9 +69,10 @@ interface AccessLog {
   count: string;
 }
 
-const year = ref(2024);
+const currentYear = new Date().getFullYear();
+const year = ref(currentYear);
 const lowestYear = ref(2023);
-const highestYear = ref(2024);
+const highestYear = ref(currentYear);
 
 const monthFiles = ref({});
 const monthNames = [
@@ -682,10 +683,10 @@ const getLocationName = (locationId) => {
           <div class="font-bold text-base md:text-xl mb-4 border-b border-b-gray-400 pb-1 flex justify-between items-center">
             Benutzer Zugriffs Log
             <div v-if="showAccessLog" @click="toggleShowAccessLog()" class="cursor-pointer pr-2">
-                <i class="fas fa-chevron-down"></i>
+                <i class="fas fa-chevron-up"></i>
             </div>
             <div v-if="!showAccessLog" @click="toggleShowAccessLog()" class="cursor-pointer pr-2">
-                <i class="fas fa-chevron-up"></i>
+                <i class="fas fa-chevron-down"></i>
             </div>
           </div>
 
@@ -729,10 +730,10 @@ const getLocationName = (locationId) => {
           <div class="font-bold text-base md:text-xl mb-4 border-b border-b-gray-400 pb-1 flex justify-between items-center">
             Benutzer Anmeldungen Log
             <div v-if="showLoginLog" @click="toggleShowLoginLog()" class="cursor-pointer pr-2">
-                <i class="fas fa-chevron-down"></i>
+                <i class="fas fa-chevron-up"></i>
             </div>
             <div v-if="!showLoginLog" @click="toggleShowLoginLog()" class="cursor-pointer pr-2">
-                <i class="fas fa-chevron-up"></i>
+                <i class="fas fa-chevron-down"></i>
             </div>
           </div>
 
@@ -773,10 +774,10 @@ const getLocationName = (locationId) => {
           <div class="font-bold text-base md:text-xl mb-4 border-b border-b-gray-400 pb-1 flex justify-between items-center">
             Begrüßungs Text
             <div v-if="showGreeting" @click="toggleShowGreeting()" class="cursor-pointer pr-2">
-                <i class="fas fa-chevron-down"></i>
+                <i class="fas fa-chevron-up"></i>
             </div>
             <div v-if="!showGreeting" @click="toggleShowGreeting()" class="cursor-pointer pr-2">
-                <i class="fas fa-chevron-up"></i>
+                <i class="fas fa-chevron-down"></i>
             </div>
           </div>
 
@@ -805,10 +806,10 @@ const getLocationName = (locationId) => {
           <div class="font-bold text-base md:text-xl mb-4 border-b border-b-gray-400 pb-1 flex justify-between items-center">
             Benutzer simulieren
             <div v-if="showUserSimulation" @click="toggleShowUserSimulation()" class="cursor-pointer pr-2">
-                <i class="fas fa-chevron-down"></i>
+                <i class="fas fa-chevron-up"></i>
             </div>
             <div v-if="!showUserSimulation" @click="toggleShowUserSimulation()" class="cursor-pointer pr-2">
-                <i class="fas fa-chevron-up"></i>
+                <i class="fas fa-chevron-down"></i>
             </div>
           </div>
 
@@ -828,10 +829,10 @@ const getLocationName = (locationId) => {
           <div class="font-bold text-base md:text-xl mb-4 border-b border-b-gray-400 pb-1 flex justify-between items-center">
             Häufig gestellte Fragen (FAQ)
             <div v-if="showFAQ" @click="toggleShowFAQ()" class="cursor-pointer pr-2">
-                <i class="fas fa-chevron-down"></i>
+                <i class="fas fa-chevron-up"></i>
             </div>
             <div v-if="!showFAQ" @click="toggleShowFAQ()" class="cursor-pointer pr-2">
-                <i class="fas fa-chevron-up"></i>
+                <i class="fas fa-chevron-down"></i>
             </div>
           </div>
 
@@ -851,7 +852,12 @@ const getLocationName = (locationId) => {
               <div v-for="faq in faqs" :key="faq.id" class="mb-4 p-2 border rounded shadow bg-gray-300">
                 <div class="flex justify-between items-center cursor-pointer" @click="toggleFAQ(faq)">
                   <span class="font-semibold">{{ faq.question }}</span>
-                  <i :class="`fas ${faq.isOpen ? 'fa-chevron-up' : 'fa-chevron-down'}`"></i>
+                  <div v-if="faq.isOpen">
+                      <i class="fas fa-chevron-up"></i>
+                  </div>
+                  <div v-else>
+                      <i class="fas fa-chevron-down"></i>
+                  </div>
                 </div>
                 <div v-if="faq.isOpen" class="mt-4 text-center">
                   <input type="text" v-model="faq.question" class="w-full p-1 border rounded border-red-700" />
@@ -875,10 +881,10 @@ const getLocationName = (locationId) => {
           <div class="font-bold text-base md:text-xl mb-4 border-b border-b-gray-400 pb-1 flex justify-between items-center">
             Dienst-Punktevergabe verwalten
             <div v-if="showShifts" @click="toggleShowShifts()" class="cursor-pointer pr-2">
-                <i class="fas fa-chevron-down"></i>
+                <i class="fas fa-chevron-up"></i>
             </div>
             <div v-if="!showShifts" @click="toggleShowShifts()" class="cursor-pointer pr-2">
-                <i class="fas fa-chevron-up"></i>
+                <i class="fas fa-chevron-down"></i>
             </div>
           </div>
 
@@ -1006,10 +1012,10 @@ const getLocationName = (locationId) => {
               </div>
               
               <div v-if="showInfoblaetter" @click="toggleShowInfoblaetter()" class="cursor-pointer pr-2">
-                  <i class="fas fa-chevron-down"></i>
+                  <i class="fas fa-chevron-up"></i>
               </div>
               <div v-if="!showInfoblaetter" @click="toggleShowInfoblaetter()" class="cursor-pointer pr-2">
-                  <i class="fas fa-chevron-up"></i>
+                  <i class="fas fa-chevron-down"></i>
               </div>
             </div>
           </div>
@@ -1065,10 +1071,10 @@ const getLocationName = (locationId) => {
           <div class="font-bold text-base md:text-xl mb-4 border-b border-b-gray-400 pb-1 flex justify-between items-center">
             Umfrage - Frage 1
             <div v-if="showQuestion1" @click="toggleShowQuestion1()" class="cursor-pointer pr-2">
-                <i class="fas fa-chevron-down"></i>
+                <i class="fas fa-chevron-up"></i>
             </div>
             <div v-if="!showQuestion1" @click="toggleShowQuestion1()" class="cursor-pointer pr-2">
-                <i class="fas fa-chevron-up"></i>
+                <i class="fas fa-chevron-down"></i>
             </div>
           </div>
 
@@ -1101,10 +1107,10 @@ const getLocationName = (locationId) => {
           <div class="font-bold text-base md:text-xl mb-4 border-b border-b-gray-400 pb-1 flex justify-between items-center">
             Neues Produkt anlegen
             <div v-if="showNewProduct" @click="toggleNewProduct()" class="cursor-pointer pr-2">
-                <i class="fas fa-chevron-down"></i>
+                <i class="fas fa-chevron-up"></i>
             </div>
             <div v-if="!showNewProduct" @click="toggleNewProduct()" class="cursor-pointer pr-2">
-                <i class="fas fa-chevron-up"></i>
+                <i class="fas fa-chevron-down"></i>
             </div>
           </div>
 
@@ -1278,10 +1284,10 @@ const getLocationName = (locationId) => {
           <div class="font-bold text-base md:text-xl mb-4 border-b border-b-gray-400 pb-1 flex justify-between items-center">
             Produkte verwalten
             <div v-if="showEditProduct" @click="toggleEditProduct()" class="cursor-pointer pr-2">
-                <i class="fas fa-chevron-down"></i>
+                <i class="fas fa-chevron-up"></i>
             </div>
             <div v-if="!showEditProduct" @click="toggleEditProduct()" class="cursor-pointer pr-2">
-                <i class="fas fa-chevron-up"></i>
+                <i class="fas fa-chevron-down"></i>
             </div>
           </div>
 
@@ -1494,10 +1500,10 @@ const getLocationName = (locationId) => {
           <div class="font-bold text-base md:text-xl mb-4 border-b border-b-gray-400 pb-1 flex justify-between items-center">
             Wünsche und Ideen an die Entwicklung
             <div v-if="showWishes" @click="toggleShowWishes()" class="cursor-pointer pr-2">
-                <i class="fas fa-chevron-down"></i>
+                <i class="fas fa-chevron-up"></i>
             </div>
             <div v-if="!showWishes" @click="toggleShowWishes()" class="cursor-pointer pr-2">
-                <i class="fas fa-chevron-up"></i>
+                <i class="fas fa-chevron-down"></i>
             </div>
           </div>
 
@@ -1528,20 +1534,6 @@ const getLocationName = (locationId) => {
                         <i class="fas fa-circle"></i>
                         <i class="fas fa-circle"></i>
                         <i class="far fa-circle"></i>
-                      </span>
-                    </div>
-                  </span>
-                </li>
-
-                <li class="mb-4 p-4 bg-gray-100 flex justify-between items-start">
-                  <span class="flex-1">Bestellungen drucken</span>
-                  <span class="flex-none ml-4 text-sm"> <!-- Kleine Schrift für die Beschreibungen -->
-                    <div class="flex items-center mb-1">
-                      <span class="mr-2 font-semibold">Aufwand:</span> <!-- Beschreibungsfeld -->
-                      <span class="text-red-500 flex items-center">
-                        <i class="fas fa-circle"></i>
-                        <i class="fas fa-circle"></i>
-                        <i class="fas fa-circle"></i>
                       </span>
                     </div>
                   </span>

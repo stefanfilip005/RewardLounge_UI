@@ -5,6 +5,7 @@ import axios from 'axios';
 import dayjs from 'dayjs'; // for handling date calculations
 import 'dayjs/locale/de'; // import the German locale
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { parsePhoneNumberFromString, CountryCode } from 'libphonenumber-js';
 
 dayjs.extend(relativeTime);
 dayjs.locale('de'); // use German locale globally
@@ -21,15 +22,38 @@ interface Employee {
     employeeType: string;
     shift_formatted: string; // Formatted date string
     shift_relative: string; // Relative date string
+    haupt: string,
+    Status: string,
+    active: boolean,
+    hidden: boolean,
+    auszeit: boolean,
+    phone: string,
+    phoneInternational?: string
 
+}
+function formatPhoneNumber(phone: string | undefined, countryCode: CountryCode = 'DE'): string {
+  if (typeof phone === 'string' && phone.trim() !== '') {
+    const phoneNumber = parsePhoneNumberFromString(phone, { defaultCountry: countryCode });
+    return phoneNumber ? phoneNumber.formatInternational() : '';
+  }
+  return '';  // Rückgabe eines leeren Strings, wenn kein gültiger Telefonnummer-String vorhanden ist.
 }
 
 const store = useStore();
 const jwt = computed(() => store.state.jwt);
 
+const isAdmin = computed(() => {
+    const user = store.state.user; // Directly accessing user from the state
+    if (!user) return false; // Check if user is null
+    return user.isAdministrator || user.isDeveloper;
+});
+
 const employees = ref<Employee[]>([]);
   const filteredGroups = ref<{
   future: Employee[],
+  futureWeek: Employee[],
+  lastWeek: Employee[],
+  last2Weeks: Employee[],
   lastMonth: Employee[],
   last2Months: Employee[],
   last6Months: Employee[],
@@ -37,6 +61,9 @@ const employees = ref<Employee[]>([]);
   beyondYear: Employee[]
 }>({
   future: [],
+  futureWeek: [],
+  lastWeek: [],
+  last2Weeks: [],
   lastMonth: [],
   last2Months: [],
   last6Months: [],
@@ -45,14 +72,20 @@ const employees = ref<Employee[]>([]);
 });
 const toggleStates = ref({
   future: false,
+  futureWeek: false,
+  lastWeek: false,
+  last2Weeks: false,
   lastMonth: false,
-      last2Months: true,
-      last6Months: true,
-      lastYear: true,
-      beyondYear: false
+  last2Months: true,
+  last6Months: true,
+  lastYear: true,
+  beyondYear: false
 });
 const groupDescriptions = {
   future: 'Haben einen zukünftigen Dienst eingetragen',
+  futureWeek: 'Haben in den nächsten 7 Tagen einen zukünftigen Dienst eingetragen',
+  lastWeek: 'Hatte in den letzten 7 Tagen den letzten Dienst',
+  last2Weeks: 'Hatte in den letzten 14 Tagen den letzten Dienst',
   lastMonth: 'Hatte in den letzten 30 Tagen den letzten Dienst',
   last2Months: 'Der letzte Dienst ist länger als 30 Tage her', // Updated description for clarity
   last6Months: 'Der letzte Dienst ist länger als 60 Tage her', // Assuming a progression in the descriptions
@@ -70,11 +103,12 @@ const getEmployees = async () => {
       }
     });
     // Filter employees to include only those with employeeType "EA-RKT"
-    const filteredEmployees = response.data.data.filter((emp: Employee) => emp.employeeType === "EA-RKT" && emp.firstname && emp.lastname);
+    const filteredEmployees = response.data.data.filter((emp: Employee) => emp.Status === "Ehrenamtlich" && emp.firstname && emp.lastname);
 
     // Mapping the filtered list
     employees.value = filteredEmployees.map((emp: Employee) => ({
       ...emp,
+      phoneInternational: formatPhoneNumber(emp.phone),
       shift_relative: emp.next_shift_date ? dayjs(emp.next_shift_date).fromNow() : 
                         (emp.last_shift_date ? dayjs(emp.last_shift_date).fromNow() : 'Kein Datum'),
       shift_formatted: emp.next_shift_date ? dayjs(emp.next_shift_date).format('DD.MM.YYYY') : 
@@ -90,8 +124,35 @@ const categorizeEmployees = () => {
 
     filteredGroups.value.future = employees.value
         .filter(emp => {
+            if( !isAdmin.value ){
+              if( emp.hidden) return false;
+            }
+            if( emp.points == 0) return false;
             if (!emp.next_shift_date) return false;
-            return true;
+            const empDate = dayjs(emp.next_shift_date);
+            return now.diff(empDate, 'day') <= -7;
+        })
+        .sort((a, b) => {
+            const dateDiff = dayjs(b.next_shift_date).unix() - dayjs(a.next_shift_date).unix(); // Primary sort by date
+            if (dateDiff !== 0) {
+                return dateDiff; // Sort by most recent shift date first
+            }
+            // Secondary sort by lastname, and if those are equal, then by firstname
+            const lastNameDiff = a.lastname.localeCompare(b.lastname);
+            if (lastNameDiff !== 0) {
+                return lastNameDiff;
+            }
+            return a.firstname.localeCompare(b.firstname); // Tertiary sort by firstname if lastnames are identical
+        });
+    filteredGroups.value.futureWeek = employees.value
+        .filter(emp => {
+            if( !isAdmin.value ){
+              if( emp.hidden) return false;
+            }
+            if( emp.points == 0) return false;
+            if (!emp.next_shift_date) return false;
+            const empDate = dayjs(emp.next_shift_date);
+            return now.diff(empDate, 'day') > -7;
         })
         .sort((a, b) => {
             const dateDiff = dayjs(b.next_shift_date).unix() - dayjs(a.next_shift_date).unix(); // Primary sort by date
@@ -106,12 +167,64 @@ const categorizeEmployees = () => {
             return a.firstname.localeCompare(b.firstname); // Tertiary sort by firstname if lastnames are identical
         });
 
-    filteredGroups.value.lastMonth = employees.value
+
+    filteredGroups.value.lastWeek = employees.value
         .filter(emp => {
+            if( !isAdmin.value ){
+              if( emp.hidden) return false;
+            }
+          if( emp.points == 0) return false;
             if (emp.next_shift_date) return false;
             if (!emp.last_shift_date) return false;
             const empDate = dayjs(emp.last_shift_date);
-            return now.diff(empDate, 'day') <= 30;
+            return now.diff(empDate, 'day') <= 7;
+        })
+        .sort((a, b) => {
+            const dateDiff = dayjs(b.last_shift_date).unix() - dayjs(a.last_shift_date).unix(); // Primary sort by date
+            if (dateDiff !== 0) {
+                return dateDiff; // Sort by most recent shift date first
+            }
+            // Secondary sort by lastname, and if those are equal, then by firstname
+            const lastNameDiff = a.lastname.localeCompare(b.lastname);
+            if (lastNameDiff !== 0) {
+                return lastNameDiff;
+            }
+            return a.firstname.localeCompare(b.firstname); // Tertiary sort by firstname if lastnames are identical
+        });
+    filteredGroups.value.last2Weeks = employees.value
+        .filter(emp => {
+            if( !isAdmin.value ){
+              if( emp.hidden) return false;
+            }
+          if( emp.points == 0) return false;
+            if (emp.next_shift_date) return false;
+            if (!emp.last_shift_date) return false;
+            const empDate = dayjs(emp.last_shift_date);
+            return now.diff(empDate, 'day') > 7 && now.diff(empDate, 'day') <= 14;
+        })
+        .sort((a, b) => {
+            const dateDiff = dayjs(b.last_shift_date).unix() - dayjs(a.last_shift_date).unix(); // Primary sort by date
+            if (dateDiff !== 0) {
+                return dateDiff; // Sort by most recent shift date first
+            }
+            // Secondary sort by lastname, and if those are equal, then by firstname
+            const lastNameDiff = a.lastname.localeCompare(b.lastname);
+            if (lastNameDiff !== 0) {
+                return lastNameDiff;
+            }
+            return a.firstname.localeCompare(b.firstname); // Tertiary sort by firstname if lastnames are identical
+        });
+
+    filteredGroups.value.lastMonth = employees.value
+        .filter(emp => {
+            if( !isAdmin.value ){
+              if( emp.hidden) return false;
+            }
+          if( emp.points == 0) return false;
+            if (emp.next_shift_date) return false;
+            if (!emp.last_shift_date) return false;
+            const empDate = dayjs(emp.last_shift_date);
+            return now.diff(empDate, 'day') > 14 && now.diff(empDate, 'day') <= 30;
         })
         .sort((a, b) => {
             const dateDiff = dayjs(b.last_shift_date).unix() - dayjs(a.last_shift_date).unix(); // Primary sort by date
@@ -128,6 +241,10 @@ const categorizeEmployees = () => {
 
     filteredGroups.value.last2Months = employees.value
         .filter(emp => {
+            if( !isAdmin.value ){
+              if( emp.hidden) return false;
+            }
+          if( emp.points == 0) return false;
           if (emp.next_shift_date) return false;
             if (!emp.last_shift_date) return false;
             const empDate = dayjs(emp.last_shift_date);
@@ -148,6 +265,10 @@ const categorizeEmployees = () => {
 
     filteredGroups.value.last6Months = employees.value
         .filter(emp => {
+            if( !isAdmin.value ){
+              if( emp.hidden) return false;
+            }
+          if( emp.points == 0) return false;
           if (emp.next_shift_date) return false;
             if (!emp.last_shift_date) return false;
             const empDate = dayjs(emp.last_shift_date);
@@ -168,6 +289,10 @@ const categorizeEmployees = () => {
 
     filteredGroups.value.lastYear = employees.value
         .filter(emp => {
+            if( !isAdmin.value ){
+              if( emp.hidden) return false;
+            }
+          if( emp.points == 0) return false;
           if (emp.next_shift_date) return false;
             if (!emp.last_shift_date) return false;
             const empDate = dayjs(emp.last_shift_date);
@@ -188,6 +313,10 @@ const categorizeEmployees = () => {
 
     filteredGroups.value.beyondYear = employees.value
         .filter(emp => {
+            if( !isAdmin.value ){
+              if( emp.hidden) return false;
+            }
+          if( emp.points == 0) return false;
           if (emp.next_shift_date) return false;
             if (!emp.last_shift_date) return false;
             const empDate = dayjs(emp.last_shift_date);
@@ -217,6 +346,92 @@ const toggleShowInfo = async () => {
 onMounted(() => {
   getEmployees();
 });
+
+
+const disableEmployee = async (employee: Employee) => {
+  try {
+    await axios.post(`../api/employees/disable/${employee.remoteId}`, {}, {
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${jwt.value}`
+      }
+    });
+    employee.active = false;
+  } catch (error) {
+    console.error(error);
+  }
+};
+const enableEmployee = async (employee: Employee) => {
+  try {
+    await axios.post(`../api/employees/enable/${employee.remoteId}`, {}, {
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${jwt.value}`
+      }
+    });
+    employee.active = true;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+
+
+const auszeitEmployee = async (employee: Employee) => {
+  try {
+    await axios.post(`../api/employees/auszeitTrue/${employee.remoteId}`, {}, {
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${jwt.value}`
+      }
+    });
+    employee.auszeit = true;
+  } catch (error) {
+    console.error(error);
+  }
+};
+const productiveEmployee = async (employee: Employee) => {
+  try {
+    await axios.post(`../api/employees/auszeitFalse/${employee.remoteId}`, {}, {
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${jwt.value}`
+      }
+    });
+  employee.auszeit = false;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const hideEmployee = async (employee: Employee) => {
+  try {
+    await axios.post(`../api/employees/hide/${employee.remoteId}`, {}, {
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${jwt.value}`
+      }
+    });
+    employee.hidden = true;
+  } catch (error) {
+    console.error(error);
+  }
+};
+const unhideEmployee = async (employee: Employee) => {
+  try {
+    await axios.post(`../api/employees/unhide/${employee.remoteId}`, {}, {
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${jwt.value}`
+      }
+    });
+    employee.hidden = false;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+
 </script>
 
 
@@ -269,7 +484,9 @@ onMounted(() => {
                 <tr>
                   <th class="px-2 py-1 text-left">ID</th>
                   <th class="px-2 py-1 text-left">Name</th>
+                  <th class="px-2 py-1 text-left">Telefon</th>
                   <th class="px-2 py-1 text-left" colspan="2">{{ key === 'future' ? 'Nächster Dienst' : 'Letzter Dienst' }}</th>
+                  <th class="px-2 py-1 text-center" colspan="3" v-if="isAdmin">Aktionen</th>
                 </tr>
               </thead>
               <tbody>
@@ -278,10 +495,56 @@ onMounted(() => {
                     'bg-gray-200': index % 2 === 0,
                     'hover:bg-blue-300': true
                 }">
-                  <td class="border px-2 py-1">{{ employee.remoteId }}</td>
-                  <td class="border px-2 py-1">{{ employee.firstname }} <strong>{{ employee.lastname }}</strong></td>
-                  <td class="border px-2 py-1">{{ employee.shift_formatted }}</td>
-                  <td class="border px-2 py-1 text-gray-500">{{ employee.shift_relative }}</td>
+                  <td class="border px-2 py-1" :class="{'text-gray-400': !employee.hidden && (!employee.active || employee.auszeit || (employee.haupt && employee.haupt != 'HAUPT'))}">
+                    <router-link 
+                          :to="'/dienste-' + employee.remoteId"
+                          class="text-blue-500 underline hover:text-blue-700 cursor-pointer"  :class="{'text-gray-400': !employee.hidden && (!employee.active || employee.auszeit || (employee.haupt && employee.haupt != 'HAUPT'))}">
+                          {{ employee.remoteId }}
+                        </router-link>
+                  </td>
+                  <td class="border px-2 py-1">
+                    <span class="text-red-600" v-if="!employee.active">(ABGEMELDET) </span>
+                    <span class="text-blue-600" v-if="employee.auszeit">(AUSZEIT) </span>
+                    <span class="text-red-400" v-if="employee.haupt && employee.haupt != 'HAUPT'">(GAST) </span>
+                    <span v-if="employee.hidden" class="line-through text-gray-400">
+                      {{ employee.firstname }} <strong>{{ employee.lastname }}</strong>
+                    </span>
+                    <span v-if="!employee.hidden" :class="{'text-gray-400': !employee.hidden && (!employee.active || employee.auszeit || (employee.haupt && employee.haupt != 'HAUPT'))}">
+                      {{ employee.firstname }} <strong>{{ employee.lastname }}</strong>
+                    </span>
+                  </td>
+                  <td class="border px-2 py-1">
+                    <a :href="`tel:${employee.phoneInternational}`"
+                       class="text-blue-500 underline hover:text-blue-700 cursor-pointer" :class="{'text-gray-400': !employee.hidden && (!employee.active || employee.auszeit || (employee.haupt && employee.haupt != 'HAUPT'))}">
+                      {{ employee.phone }}
+                    </a>
+                  </td>
+                  <td class="border px-2 py-1" :class="{'text-gray-400': !employee.hidden && (!employee.active || employee.auszeit || (employee.haupt && employee.haupt != 'HAUPT'))}">{{ employee.shift_formatted }}</td>
+                  <td class="border px-2 py-1" :class="{'text-gray-400': !employee.hidden && (!employee.active || employee.auszeit || (employee.haupt && employee.haupt != 'HAUPT'))}">{{ employee.shift_relative }}</td>
+                  <td class="px-2 py-1 text-center" v-if="isAdmin">
+                    <div v-if="!employee.hidden">
+                      <button @click="hideEmployee(employee)" class="text-xs bg-gray-300 hover:bg-gray-500 text-white px-2 py-1 rounded cursor-pointer"><i class="fa-solid fa-eye-slash"></i></button>
+                    </div>
+                    <div v-if="employee.hidden">
+                      <button @click="unhideEmployee(employee)" class="text-xs bg-slate-400 hover:bg-slate-600 text-black px-2 py-1 rounded cursor-pointer"><i class="fa-solid fa-eye"></i></button>
+                    </div>
+                  </td>
+                  <td class="px-2 py-1 text-center" v-if="isAdmin">
+                    <div v-if="!employee.auszeit">
+                      <button @click="auszeitEmployee(employee)" class="text-xs bg-blue-400 hover:bg-blue-600 text-white px-2 py-1 rounded cursor-pointer"><i class="fa-solid fa-umbrella-beach"></i></button>
+                    </div>
+                    <div v-if="employee.auszeit">
+                      <button @click="productiveEmployee(employee)" class="text-xs bg-cyan-400 hover:bg-cyan-600 text-black px-2 py-1 rounded cursor-pointer"><i class="fa-solid fa-briefcase"></i></button>
+                    </div>
+                  </td>
+                  <td class="px-2 py-1 text-center border-r border-r-gray-600" v-if="isAdmin">
+                    <div v-if="employee.active">
+                      <button @click="disableEmployee(employee)" class="text-xs bg-red-400 hover:bg-red-600 text-white px-2 py-1 rounded cursor-pointer"><i class="fa-solid fa-thumbs-down"></i></button>
+                    </div>
+                    <div v-if="!employee.active">
+                      <button @click="enableEmployee(employee)" class="text-xs bg-green-400 hover:bg-green-600 text-black px-2 py-1 rounded cursor-pointer"><i class="fa-solid fa-thumbs-up"></i></button>
+                    </div>
+                  </td>
                 </tr>
               </tbody>
             </table>
